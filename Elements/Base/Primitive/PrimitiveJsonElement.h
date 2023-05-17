@@ -2,7 +2,7 @@
 #include "../JsonElementBase.h"
 
 template <typename T>
-class PrimitiveJsonElement
+class PrimitiveJsonElement : public JsonElementBase
 {
 protected:
     T data; // whetjer boolean, null, number or string data
@@ -11,7 +11,7 @@ public:
     PrimitiveJsonElement(const T &data, const JsonElementBaseType &type) : JsonElementBase(type), data(data)
     {
     }
-    virtual const T &get() const
+    virtual T get() const
     {
         return this->data;
     }
