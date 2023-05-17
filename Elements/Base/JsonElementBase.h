@@ -1,5 +1,6 @@
+#pragma once
+#include <iostream>
 #include "JsonElementBaseType.h"
-
 class JsonElementBase
 {
     JsonElementBaseType type;
