@@ -5,6 +5,7 @@
 #include "./Elements/Base\Primitive\Number\DecimalJsonElement.h"
 #include "./Elements/Base\Primitive\Null\NullJsonElement.h"
 #include "./Elements/Base\Primitive\Boolean\BooleanJsonElement.h"
+#include "./Elements/Base\Compound\Array\JsonArray.h"
 
 int main()
 {
@@ -12,6 +13,8 @@ int main()
     StringJsonElement k1("ehrdfni");
     DecimalJsonElement k2(2.34);
     NullJsonElement k3;
-
-    
+    JsonArray k5;
+    k5.pushFront(k0);
+    k5.pushBack(k1);
+    k5.print(std::cout);
 }
