@@ -28,8 +28,7 @@ public:
         return type;
     }
 
-
-   JsonElementBase *&value()
+    JsonElementBase *&value()
     {
         return _value;
     }
