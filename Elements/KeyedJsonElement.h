@@ -5,6 +5,7 @@
 
 class KeyedJsonElement : public JsonElement
 {
+    // Possible change - a class Pair of keys and values
     MyString _key;
 
 public:

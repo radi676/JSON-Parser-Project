@@ -5,7 +5,7 @@ template <typename T>
 class PrimitiveJsonElement : public JsonElementBase
 {
 protected:
-    T data; // whetjer boolean, null, number or string data
+    T data; // whether boolean, null, number or string data
 
 public:
     PrimitiveJsonElement(const T &data, const JsonElementBaseType &type) : JsonElementBase(type), data(data)

@@ -13,4 +13,5 @@ public:
     }
     virtual void print(std::ostream &o, size_t inset = 0) const = 0;
     virtual JsonElementBase *clone() const = 0;
+    virtual ~JsonElementBase() = default;
 };
