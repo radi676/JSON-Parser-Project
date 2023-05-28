@@ -41,6 +41,9 @@ public:
 
     T &operator[](size_t index);
     const T &operator[](size_t index) const;
+
+    T &getLast();
+    const T &getLast() const;
 };
 
 template <typename T>
@@ -296,7 +299,7 @@ bool List<T>::removeFirstWhere(bool (*predicate)(const T &check, const K &valueC
 {
     for (size_t i = 0; i < count; i++)
     {
-        //remove only if it is a predicat
+        // remove only if it is a predicat
         if (predicate(data[i], valueCheck))
         {
             return removeAt(i);
@@ -336,4 +339,25 @@ List<T> &List<T>::operator=(List &&other)
     }
 
     return *this;
+}
+template <typename T>
+T &List<T>::getLast()
+{
+    if (count == 0)
+    {
+        throw std::exception();
+    }
+
+    return data[count - 1];
+}
+
+template <typename T>
+const T &List<T>::getLast() const
+{
+    if (count == 0)
+    {
+        throw std::exception();
+    }
+
+    return data[count - 1];
 }

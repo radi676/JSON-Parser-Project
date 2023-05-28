@@ -16,5 +16,7 @@ int main()
     JsonArray k5;
     k5.pushFront(k0);
     k5.pushBack(k1);
+    k5.pushBack(k2);
+    k5.pushBack(k3);
     k5.print(std::cout);
 }
