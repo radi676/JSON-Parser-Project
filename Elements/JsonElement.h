@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include "JsonElementType.h"
 #include "./Base/JsonElementBase.h"
 #include "../Utils/Output/Output.h"
 #include "../Utils/SharedPtr/SharedPtr.hpp"
@@ -8,14 +7,13 @@
 class JsonElement
 {
 protected:
-    JsonElementType type;
-    // sharedPtr<JsonElementBase> is a pointer to JsonElementBase whether a string, an integer, a decimal, Integer, Boolean, Null, object, array
     SharedPtr<JsonElementBase> _value;
-    JsonElement(JsonElementType type, JsonElementBase *value) : type(type), _value(value) {}
 
 public:
-    JsonElement() : JsonElement(JsonElementType::ValueElement, nullptr) {}
-    JsonElement(const JsonElementBase &value) : JsonElement(JsonElementType::ValueElement, value.clone()) {}
+	JsonElement() : JsonElement(nullptr) {}
+    
+	JsonElement(const JsonElementBase& value) : _value(value.clone()) {}
+	JsonElement(const SharedPtr<JsonElementBase>& ptr) : _value(ptr) {}
 
     virtual void print(std::ostream &o, size_t inset = 0, bool shouldInset = true) const
     {
@@ -32,6 +30,7 @@ public:
     {
         _value = ptr;
     }
+
 
     SharedPtr<JsonElementBase> &value()
     {
