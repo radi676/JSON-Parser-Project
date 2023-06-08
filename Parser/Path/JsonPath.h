@@ -1,11 +1,11 @@
 #pragma once
-#include "../../Utils/List/List.hpp"
+#include "../../Utils/List/List.h"
 #include "./JsonKey.h"
+
 
 
 class JsonPath
 {
-	//a list of keys or indexes
 	List<JsonKey> path;
 
 public:
@@ -69,19 +69,14 @@ public:
 			if (path[i].isArray())
 			{
 				// TODO: fix
-                //Parse to Integer in Helpers
 				result += "NumberHere";
 			}
 			else
 			{
-				// TODO: точки
-				// ако следващото е арей няма точка
-				// и на последното
+				// TODO: add points
 				result += path[i].key();
 			}
 		}
-		// няма смисъл от копие и живее само в този скоуш
 		return std::move(result);
-		// ще се муувне на mystring
 	}
 };

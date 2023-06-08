@@ -15,7 +15,7 @@ public:
         return first;
     }
 
-    V &second()
+    V &getSecond()
     {
         return second;
     }
