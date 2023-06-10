@@ -1,8 +1,6 @@
 #pragma once
-#include "../../Utils/List/List.h"
+#include "../../Utils/List/List.hpp"
 #include "./JsonKey.h"
-
-
 
 class JsonPath
 {
@@ -14,7 +12,7 @@ public:
 		path.pushBack(key);
 	}
 
-	const MyString& key(size_t i) const
+	const MyString &key(size_t i) const
 	{
 		if (i >= path.getCount())
 		{
@@ -49,7 +47,7 @@ public:
 		return path.getCount();
 	}
 
-	const JsonKey& getLast() const
+	const JsonKey &getLast() const
 	{
 		return path.getLast();
 	}
@@ -73,10 +71,10 @@ public:
 			}
 			else
 			{
-				// TODO: add points
 				result += path[i].key();
 			}
 		}
+		// result lives only in this scope -> no need of copy constr
 		return std::move(result);
 	}
 };

@@ -1,4 +1,5 @@
-#include "../Utils/String/MyString.h"
+#pragma once
+#include "../../Utils/String/MyString.h"
 
 
 //If a union contains a non-static data member with a non-trivial special member function (copy/move constructor, copy/move assignment, or destructor), that function is deleted by default in the union and needs to be defined explicitly by the programmer.
@@ -7,7 +8,6 @@ class JsonKey
 {
 	union data
 	{
-		//key си предефенира конструктори, деструктпор и оператор= , затова трябва да има конструктор и деструктор заради mystring
 		MyString key;
 		size_t arrayIndex;
 		// Needed bcs key is not primitive data type
