@@ -1,4 +1,3 @@
-
 #pragma once
 #include "../JsonDocument.h"
 
@@ -326,7 +325,6 @@ public:
 					}
 					else if (path[startIndex + 1] == '\'' || path[startIndex + 1] == ']' || path[startIndex + 1] == ' ')
 					{
-						//TODO: + works??
 						throw InvalidPathException(safeContextSubstr(path, startIndex, 20), "Not allowed symbol in non-quoted block key. Symbol: " + path[startIndex + 1]);
 
 					}
