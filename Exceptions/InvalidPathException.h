@@ -7,7 +7,7 @@ class InvalidPathException : public std::exception
     MyString desc;
 
 public:
-    InvalidPathException(const MyString& context, const MyString& desc = "") : context(context), desc(desc) {}
+    InvalidPathException(const MyString& context, const MyString& desc = "Unknown") : context(context), desc(desc) {}
 
     const char* what() const noexcept override
     {

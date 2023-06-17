@@ -6,9 +6,14 @@ bool isDigit(char c)
 	return c >= '0' && c <= '9';
 }
 
+bool isWhitespace(char c)
+{
+	return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+}
+
 size_t skipWithespace(const MyString& str, size_t startIndex)
 {
-	while (str[startIndex] == ' ' || str[startIndex] == '\t' || str[startIndex] == '\n')
+	while (isWhitespace(str[startIndex]))
 	{
 		startIndex++;
 	}
@@ -254,4 +259,18 @@ MyString safeContextSubstr(const MyString& str, size_t index, size_t contextLen)
 	size_t endIndex = str.getLength() > index + contextLen ? index + contextLen : str.getLength() - 1;
 
 	return str.substr(startIndex, endIndex - startIndex + 1);
+}
+
+MyString parseToString(size_t n)
+{
+	std::stringstream ss;
+	ss << n;
+	return ss.str().c_str();
+}
+
+MyString jsonToString(const JsonElement* element)
+{
+	std::stringstream ss;
+	element->print(ss, 0, 0);
+	return ss.str().c_str();
 }

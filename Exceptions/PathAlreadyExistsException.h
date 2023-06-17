@@ -7,11 +7,11 @@ class PathAlreadyExistsException : public std::exception
     MyString desc;
 
 public:
-    PathAlreadyExistsException(const JsonPath &path, const MyString &desc = "") : path(path), desc(desc) {}
+    PathAlreadyExistsException(const JsonPath &path, const MyString &desc = "Unknown") : path(path), desc(desc) {}
 
     const char *what() const noexcept override
     {
-        MyString msg = "Path already exists " + path.toString() + " " + desc;
+        MyString msg = "Path already exists " + path.toString() + "\Details: " + desc;
 
         return msg.c_str();
     }

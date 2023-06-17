@@ -1,18 +1,20 @@
 #pragma once
-#include <fstream>
 #include "./Elements/Base/Compound/Object/JsonObject.h"
 #include "./Elements/Base/Compound/Array/JsonArray.h"
 #include "./Parser/Path/JsonPath.h"
 #include "./Exceptions/PathAlreadyExistsException.h"
 #include "./Exceptions/NoPathFoundException.h"
+#include "./Exceptions/FileWriteException.h"
+
+#include <fstream>
+#include <sstream>
 
 class JsonDocument : private JsonElement
 {
-
 	// TODO::search by regular expression
 	void traverseSearch(const MyString &key, List<JsonElement> &result, const JsonElement &element) const
 	{
-		if (element.value()->getType() == JsonElementBaseType::Object)
+		if (element.type() == JsonElementBaseType::Object)
 		{
 			const JsonObject &object = dynamic_cast<const JsonObject &>(element);
 			for (size_t i = 0; i < object.getCount(); i++)
@@ -22,7 +24,6 @@ class JsonDocument : private JsonElement
 					result.pushBack(object[i].second());
 				}
 
-				// recursively searching
 				traverseSearch(key, result, object[i].second());
 			}
 		}
@@ -36,39 +37,44 @@ class JsonDocument : private JsonElement
 		}
 	}
 
-	Optional<JsonElement *> findParent(const JsonPath &path, JsonElement &root)
+	JsonElement *findParent(const JsonPath &path, JsonElement &root)
 	{
 		return find(path.parent(), &root);
 	}
 
-	// TODO::remove optional
-	Optional<JsonElement *> find(const JsonPath &path, JsonElement *root)
+	JsonElement *find(const JsonPath &path, JsonElement *root)
 	{
 		JsonElement *current = root;
 		size_t levels = path.length();
 
 		for (size_t i = 0; i < levels; i++)
 		{
-			if (current->value()->getType() == JsonElementBaseType::Array && path.isArray(i))
+			if (current->type() == JsonElementBaseType::Array && path.isArray(i))
 			{
-				// Possible throw
-				current = &(*dynamic_cast<JsonArray *>(current->value().ptr()))[path.arrayIndex(i)];
+				try
+				{
+					current = &(*current->to<JsonArray>())[path.arrayIndex(i)];
+				}
+				catch (const std::out_of_range &ex)
+				{
+					throw NoKeyFoundException(parseToString(path.arrayIndex(i)), "Invalid index supplied for array in json key @index=" + parseToString(i));
+				}
 			}
-			else if (current->value()->getType() == JsonElementBaseType::Object && !path.isArray(i))
+			else if (current->type() == JsonElementBaseType::Object && !path.isArray(i))
 			{
-				// Possible throw
-				Optional<Pair<MyString, JsonElement> *> opt = (dynamic_cast<JsonObject *>(current->value().ptr()))->getByKey(path.key(i));
+				Optional<Pair<MyString, JsonElement> *> opt = current->to<JsonObject>()->getByKey(path.key(i));
 				if (!opt)
 				{
-					throw std::exception();
+					throw NoKeyFoundException(path.key(i), "Missing key @index=" + parseToString(i) + " when expecting a valid index in json array: " + jsonToString(current));
 				}
 
 				current = &(*opt)->second();
 			}
 			else
 			{
-				// change to exception
-				return Optional<JsonElement *>::empty();
+				MyString _key = path.isArray(i) ? parseToString(path.arrayIndex(i)) : path.key(i);
+				MyString _type = path.isArray(i) ? "array" : "object";
+				throw NoKeyFoundException(_key, "Missing key @index=" + parseToString(i) + " when expecting a deeper nesting, expected " + _type + " but got element: " + jsonToString(current));
 			}
 		}
 
@@ -84,21 +90,18 @@ public:
 	{
 	}
 
-	void print(std::ostream &ouputStream) const
+	// throws pathNotFoundException
+	// should be const
+	void print(std::ostream &ouputStream, const JsonPath &path = JsonPath())
 	{
-		_value->print(ouputStream);
+		JsonElement *element = find(path, this);
+		element->print(ouputStream);
 	}
 
+	// should be const
 	JsonElement find(const JsonPath &path) // throws NoFoundPath
 	{
-		Optional<JsonElement *> result = find(path, this);
-		if (!result)
-		{
-			throw std::exception();
-		}
-
-		// get the value to which points results
-		return **result;
+		return *find(path, this);
 	}
 
 	List<JsonElement> search(const MyString &key) const // No throws
@@ -110,22 +113,18 @@ public:
 
 	void set(const JsonPath &path, const JsonElement &value) // throws by getByPath
 	{
-		Optional<JsonElement *> searched = find(path, this);
-		if (!searched)
+		try
 		{
-			throw std::exception();
+			JsonElement *searched = find(path, this);
+			searched->setValue(value.value());
 		}
-
-		(*searched)->setValue(value.value());
-
-		// catch (const NoKeyFoundException& ex)
-		//{
-		//	throw NoPathFoundException(path, ex.what());
-		// }
+		catch (const NoKeyFoundException &ex)
+		{
+			throw NoPathFoundException(path, ex.what());
+		}
 	}
 
 	// Throws PathAlreadyExistsException
-
 	void create(const JsonPath &path, const JsonElement &value)
 	{
 		JsonElement *current = this;
@@ -133,40 +132,30 @@ public:
 
 		for (size_t i = 0; i < levels; i++)
 		{
-			if (current->value()->getType() == JsonElementBaseType::Array && path.isArray(i))
+			if (current->type() == JsonElementBaseType::Array && path.isArray(i))
 			{
-				// Possible throw
-				JsonArray *arr = dynamic_cast<JsonArray *>(current->value().ptr());
+				JsonArray *arr = current->to<JsonArray>();
 				if (i == levels - 1)
 				{
-					// TODO:remove try catch
-					try
+					if (arr->getCount() < path.arrayIndex(i))
 					{
-						if (arr->getCount() < path.arrayIndex(i))
-						{
-							throw std::exception();
-						}
-						else if (arr->getCount() > path.arrayIndex(i))
-						{
-						}
-						// push back
-						arr->insertAt(value, path.arrayIndex(i));
-						return;
+						throw PathAlreadyExistsException(path, "Cannot add element at already existing index in json array, specified by key @index=" + parseToString(i));
 					}
-					catch (std::exception &e)
+					else if (arr->getCount() > path.arrayIndex(i))
 					{
+						throw PathAlreadyExistsException(path, "Cannot add element at unreachable index in json array, specified by key @index=" + parseToString(i));
+					}
 
-						// TODO: rethrow -> it is invalid index, more than count
-					}
+					arr->pushBack(value);
+					return;
 				}
 				else
 				{
-					// TODO:fix
 					if (arr->getCount() == path.arrayIndex(i))
 					{
 						// create
 						JsonElement toAdd = JsonObject();
-						if (i <= levels - 3 && path.isArray(i + 2))
+						if (path.isArray(i + 1))
 						{
 							toAdd = JsonElement(JsonArray());
 						}
@@ -176,25 +165,27 @@ public:
 					}
 					else if (path.arrayIndex(i) < arr->getCount())
 					{
+						// exists
 						current = &((*arr)[path.arrayIndex(i)]);
 					}
 					else
 					{
-						throw std::exception(); // Invalid index to add;
+						throw PathAlreadyExistsException(path, "Cannot get element of path at unreachable index in json array, specified by key @index=" + parseToString(i));
 					}
 				}
 			}
-			else if (current->value()->getType() == JsonElementBaseType::Object && !path.isArray(i))
+			else if (current->type() == JsonElementBaseType::Object && !path.isArray(i))
 			{
-				JsonObject *obj = dynamic_cast<JsonObject *>(current->value().ptr());
+				JsonObject *obj = current->to<JsonObject>();
 				Optional<Pair<MyString, JsonElement> *> opt = obj->getByKey(path.key(i));
 				if (opt)
 				{
 					if (i == levels - 1)
 					{
 						// path exists already
-						throw std::exception();
+						throw PathAlreadyExistsException(path, "Cannot add element where key already exists in json object, specified by key @index=" + parseToString(i));
 					}
+
 					current = &(*opt)->second();
 				}
 				else
@@ -205,6 +196,7 @@ public:
 						toAdd.second() = JsonArray();
 					}
 
+					// TODO: try if not exists key
 					obj->pushBack(toAdd);
 					current = &(obj->getLast().second());
 				}
@@ -212,7 +204,7 @@ public:
 			else
 			{
 				// Path exists to somewhere but cannot continue/ i.e. in the middle of path threre is no obj/arr element but str/int
-				throw std::exception();
+				throw PathAlreadyExistsException(path, "Cannot add element where key already exists and is not of the right composite type, specified by key @index=" + parseToString(i));
 			}
 		}
 
@@ -221,84 +213,85 @@ public:
 
 	void deleteElement(const JsonPath &path)
 	{
-		JsonKey key = path.getLast();
-
-		Optional<JsonElement *> opt = findParent(path, *this);
-		if (!opt)
+		try
 		{
-			throw std::exception();
-		}
+			JsonKey key = path.getLast();
+			JsonElement *parent = findParent(path, *this);
 
-		JsonElement *parent = *opt;
+			if (key.isArray() && parent->type() == JsonElementBaseType::Array)
+			{
+				try
+				{
+					parent->to<JsonArray>()->removeAt(key.arrayIndex());
+				}
+				catch (const std::out_of_range &ex)
+				{
+					throw NoKeyFoundException("Index of json array @" + parseToString(key.arrayIndex()), "Invalid index specified. Out of range.");
+				}
+			}
+			else if (!key.isArray() && parent->type() == JsonElementBaseType::Object)
+			{
+				MyString _key = key.key();
 
-		if (key.isArray() && parent->value()->getType() == JsonElementBaseType::Array)
-		{
-			// Posible throw -> handle
-			dynamic_cast<JsonArray *>(parent->value().ptr())->removeAt(key.arrayIndex());
-		}
-		else if (!key.isArray() && parent->value()->getType() == JsonElementBaseType::Object)
-		{
-			MyString _key = key.key();
-			// Check if removed
-			dynamic_cast<JsonObject *>(parent->value().ptr())->removeFirstWhere([_key](Pair<MyString, JsonElement> &element)
-																				{ return element.first() == _key; });
-		}
-		else
-		{
-			throw std::exception();
-		}
+				if (!parent->to<JsonObject>()->removeFirstWhere([_key](Pair<MyString, JsonElement> &element)
+																{ return element.first() == _key; }))
+				{
+					throw NoKeyFoundException(_key, "Couln't find and delete key in json Object.");
+				}
+			}
+			else
+			{
+				throw NoKeyFoundException(key.key(), "Missing key ");
 
-		// catch (const std::exception& e)
-		//{
-		//	// TODO: rethrow
-		//	std::cerr << e.what() << '\n';
-		// }
+				MyString _key = key.isArray() ? parseToString(key.arrayIndex()) : key.key();
+				MyString _type = key.isArray() ? "array" : "object";
+				throw NoKeyFoundException(_key, "Missing key when trying to delete element, expected " + _type + " but got element: " + jsonToString(parent));
+			}
+		}
+		catch (const NoKeyFoundException &e)
+		{
+			throw NoPathFoundException(path, e.what());
+		}
+		catch (const NoPathFoundException &ex)
+		{
+			throw;
+		}
 	}
 
-	bool move(const JsonPath &from, const JsonPath &to) // No throws
+	void move(const JsonPath &from, const JsonPath &to) // throws NoPathFoundException, PathAlreadyExistsException
 	{
-		Optional<JsonElement *> toMove = find(from, this);
-
-		if (!toMove)
-		{
-			throw std::exception();
-		}
-
-		JsonElement toAdd((**toMove).value());
+		JsonElement toAdd;
 
 		try
 		{
-			deleteElement(from);
-			create(to, toAdd);
+			JsonElement *toMove = find(from, this);
+			toAdd = toMove->value();
 		}
-		catch (std::exception &ex)
+		catch (const NoKeyFoundException &ex)
 		{
-			std::cerr << ex.what();
+			throw NoPathFoundException(from, ex.what());
 		}
+
+		deleteElement(from);
+		create(to, toAdd);
 	}
 
-	bool save(std::ofstream &file, const JsonPath &path = JsonPath()) // No throws
+	bool save(const MyString &filePath, const JsonPath &path = JsonPath()) // No throws
 	{
+		std::ofstream file(filePath.c_str());
+
 		if (!file.is_open())
 		{
-			return false;
-		}
-
-		if (!file.good())
-		{
-			return false;
+			throw FileWriteException(filePath, "Couldn't open file for write.");
 		}
 
 		try
 		{
-			JsonElement toSave = find(path);
-			toSave.print(file);
-			return file.good();
+			print(file, path);
 		}
-		catch (const std::exception &e)
+		catch (const NoPathFoundException &ex)
 		{
-			// TODO: rethrow
-			std::cerr << e.what() << '\n';
+			throw FileWriteException(filePath, ex.what());
 		}
 	}
 };
