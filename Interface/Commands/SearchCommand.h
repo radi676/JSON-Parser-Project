@@ -4,8 +4,6 @@
 #include "./Command.h"
 #include "../../JsonDocument.h"
 
-#include "../../Parser/Parser.h"
-
 class SearchCommand : public Command
 {
 	JsonDocument* document;
@@ -37,14 +35,13 @@ public:
 
 			os << "]" << std::endl;
 		}
-		//TODO: add specific errors
 		catch (const std::exception& ex)
 		{
-			os << "Unexpected error occurred: " << ex.what() << std::endl;
+			os << "ERROR: " << ex.what() << std::endl;
 		}
 		catch (...)
 		{
-			throw;
+			os << "Unexpected error occured!" << std::endl;
 		}
 	}
 };

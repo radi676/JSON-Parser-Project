@@ -4,7 +4,7 @@
 #include "./Command.h"
 #include "../../JsonDocument.h"
 
-#include "../../Parser/Parser.h"
+#include "../../Parser/JsonPathParser.h"
 
 class DeleteCommand : public Command
 {
@@ -21,17 +21,17 @@ public:
 	{
 		try
 		{
-			JsonPath path = JsonParser::parsePath(_path);
+			JsonPath path = JsonPathParser::parsePath(_path);
 			document->deleteElement(path);
+			os << "Command executed successfully!" << std::endl;
 		}
-		//TODO: add specific errors
 		catch (const std::exception& ex)
 		{
-			std::cout << "Unexpected error occurred: " << ex.what() << std::endl;
+			os << "ERROR: " << ex.what() << std::endl;
 		}
 		catch (...)
 		{
-			throw;
+			os << "Unexpected error occured!" << std::endl;
 		}
 	}
 };

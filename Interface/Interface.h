@@ -25,28 +25,52 @@ public:
 			cmd.getline(is, 1024);
 			List<MyString> args = getFields(cmd);
 
-			if (args.getCount() == 1 && args[0] == "exit")
+			if (args.getCount() == 0)
+			{
+				os << "Type help to see available commands!" << std::endl;
+				continue;
+			}
+
+			if (args[0] == "exit")
 			{
 				CommandFactory::freeInstance();
 				break;
 			}
 
-			if (!isFileOpened && args.getCount() == 2 && args[0] == "open")
+			if (args[0] == "help")
 			{
-				currentFile = args[1];
-				try
-				{
-					document = JsonParser::parseFile(currentFile);
-					isFileOpened = true;
-					CommandFactory::createInstance(os, &document);
-					os << "File opened successfully!" << std::endl;
+				HelpCommand(os).execute();
+				continue;
+			}
 
-				}
-				catch (std::exception& ex)
+			if (args[0] == "open")
+			{
+				if (isFileOpened) 
 				{
-					os << ex.what() << std::endl;
+					os << "File already opened!" << std::endl;
+					continue;
 				}
 
+				if (args.getCount() == 2)
+				{
+					currentFile = args[1];
+					try
+					{
+						document = JsonElementParser::parseFile(currentFile);
+						isFileOpened = true;
+						CommandFactory::createInstance(os, &document);
+						os << "File opened successfully!" << std::endl;
+					}
+					catch (std::exception& ex)
+					{
+						os << ex.what() << std::endl;
+					}
+				}
+				else
+				{
+					os << "Invalid number of arguments!" << std::endl;
+				}
+				
 				continue;
 			}
 
@@ -56,7 +80,7 @@ public:
 				continue;
 			}
 
-			if (args.getCount() == 1 && args[0] == "close")
+			if (args[0] == "close")
 			{
 				isFileOpened = false;
 				CommandFactory::freeInstance();
@@ -64,14 +88,9 @@ public:
 				continue;
 			}
 
-			if (args.getCount() >= 1 && args[0] == "save")
+			if (args[0] == "save")
 			{
 				args.insertAt(currentFile, 1);
-			}
-
-			if (args.getCount() == 0)
-			{
-				os << "Type help to see available commands!" << std::endl;
 			}
 
 			SharedPtr<Command> command = CommandFactory::getInstance()->create(args);

@@ -191,8 +191,6 @@ bool operator!=(const MyString& lhs, const MyString& rhs)
 	return strcmp(lhs.c_str(), rhs.c_str()) != 0;
 }
 
-//remove ' ', '/t', '/n' in the beginning and the end
-//remove whitespaces
 MyString& MyString::trim()
 {
 	size_t startIndex = 0;

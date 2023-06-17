@@ -3,15 +3,15 @@
 
 class NoKeyFoundException : public std::exception
 {
-    MyString key;
-    MyString desc;
-
+	MyString msg;
 public:
-    NoKeyFoundException(const MyString &key, const MyString &desc = "Unknown") : key(key), desc(desc) {}
+	NoKeyFoundException(const MyString& key, const MyString& desc = "Unknown")
+	{
+		msg = "Couldn't find key " + key + " Details: " + desc;
+	}
 
-    const char *what() const noexcept override
-    {
-        MyString msg = "Couldn't find key " + key + " Details: " + desc;
-        return msg.c_str();
-    }
+	const char* what() const noexcept override
+	{
+		return msg.c_str();
+	}
 };

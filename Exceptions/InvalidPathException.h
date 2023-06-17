@@ -1,17 +1,19 @@
+#pragma once
+
 #include <stdexcept>
 #include "../Utils/String/MyString.h"
 
 class InvalidPathException : public std::exception
 {
-    MyString context;
-    MyString desc;
-
+	MyString msg;
 public:
-    InvalidPathException(const MyString& context, const MyString& desc = "Unknown") : context(context), desc(desc) {}
+	InvalidPathException(const MyString& context, const MyString& desc = "Unknown")
+	{
+		msg = "Couldn't parse json path around " + context + " \nProblem:" + desc;
+	}
 
-    const char* what() const noexcept override
-    {
-        MyString msg = "Couldn't parse json path around " + context + " \nProblem:" + desc;
-        return msg.c_str();
-    }
+	const char* what() const noexcept override
+	{
+		return msg.c_str();
+	}
 };

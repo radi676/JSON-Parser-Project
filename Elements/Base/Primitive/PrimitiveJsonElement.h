@@ -4,16 +4,18 @@
 template <typename T>
 class PrimitiveJsonElement : public JsonElementBase
 {
+
 protected:
-    T data; // whether boolean, null, number or string data
+    T data;
 
 public:
     PrimitiveJsonElement(const T &data, const JsonElementBaseType &type) : JsonElementBase(type), data(data)
     {
     }
+
     virtual T get() const
     {
-        return this->data;
+        return data;
     }
 
     virtual void set(const T &value)

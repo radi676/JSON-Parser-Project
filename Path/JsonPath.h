@@ -1,5 +1,7 @@
 #pragma once
-#include "../../Utils/List/List.hpp"
+
+#include "../Utils/List/List.hpp"
+#include "../Utils/Parser/Parser.h"
 #include "./JsonKey.h"
 
 class JsonPath
@@ -12,7 +14,7 @@ public:
 		path.pushBack(key);
 	}
 
-	const MyString &key(size_t i) const
+	const MyString& key(size_t i) const
 	{
 		if (i >= path.getCount())
 		{
@@ -47,7 +49,7 @@ public:
 		return path.getCount();
 	}
 
-	const JsonKey &getLast() const
+	const JsonKey& getLast() const
 	{
 		return path.getLast();
 	}
@@ -66,15 +68,20 @@ public:
 		{
 			if (path[i].isArray())
 			{
-				// TODO: fix
-				result += "NumberHere";
+				result += parseToString(path[i].arrayIndex());
 			}
 			else
 			{
 				result += path[i].key();
 			}
+
+			if (i + 1 < path.getCount() && path[i + 1].isArray())
+			{
+				result += ".";
+			}
 		}
-		// result lives only in this scope -> no need of copy constr
+
+
 		return std::move(result);
 	}
 };

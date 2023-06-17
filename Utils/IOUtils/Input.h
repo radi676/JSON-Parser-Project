@@ -30,6 +30,7 @@ List<MyString> getFields(const MyString& str)
 			}
 			else if (isInQuotes && str[startIndex] == '"' && (startIndex == 0 || str[startIndex - 1] != '\\'))
 			{
+				startIndex++;
 				break;
 			}
 
@@ -52,8 +53,20 @@ List<MyString> getFields(const MyString& str)
 			f[i] = word[i];
 		}
 		f[word.getCount()] = '\0';
-		fields.pushBack(f);
-		delete f;
+
+		MyString strVal = f;
+		delete[] f;
+
+		if (!isInQuotes)
+		{
+			strVal.trim();
+			if (strVal.getLength() == 0)
+			{
+				continue;
+			}
+		}
+
+		fields.pushBack(strVal);
 	}
 
 	return fields;

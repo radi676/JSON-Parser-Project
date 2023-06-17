@@ -4,7 +4,7 @@
 #include "./Command.h"
 #include "../../JsonDocument.h"
 
-#include "../../Parser/Parser.h"
+#include "../../Parser/JsonPathParser.h"
 
 class SaveCommand : public Command
 {
@@ -22,26 +22,17 @@ public:
 	{
 		try
 		{
-			std::ofstream file(_path.c_str());
-
-			if (!file.is_open())
-			{
-				//TODO:`fix
-				os << "ERRORRRRR!!!!!" << std::endl;
-				return;
-			}
-
-			JsonPath path = JsonParser::parsePath(_element);
-			document->save(file, path);
+			JsonPath path = JsonPathParser::parsePath(_element);
+			document->save(_path, path);
+			os << "Command executed successfully!" << std::endl;
 		}
-		//TODO: add specific errors
 		catch (const std::exception& ex)
 		{
-			os << "Unexpected error occurred: " << ex.what() << std::endl;
+			os << "ERROR: " << ex.what() << std::endl;
 		}
 		catch (...)
 		{
-			throw;
+			os << "Unexpected error occured!" << std::endl;
 		}
 	}
 };

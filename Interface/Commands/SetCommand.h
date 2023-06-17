@@ -4,7 +4,8 @@
 #include "./Command.h"
 #include "../../JsonDocument.h"
 
-#include "../../Parser/Parser.h"
+#include "../../Parser/JsonElementParser.h"
+#include "../../Parser/JsonPathParser.h"
 
 class SetCommand : public Command
 {
@@ -22,18 +23,18 @@ public:
 	{
 		try
 		{
-			JsonPath path = JsonParser::parsePath(_path);
-			JsonElement element = JsonParser::parseElement(_element);
+			JsonPath path = JsonPathParser::parsePath(_path);
+			JsonElement element = JsonElementParser::parseElement(_element);
 			document->set(path, element);
+			os << "Command executed successfully!" << std::endl;
 		}
-		//TODO: add specific errors
 		catch (const std::exception& ex)
 		{
-			std::cout << "Unexpected error occurred: " << ex.what() << std::endl;
+			os << "ERROR: " << ex.what() << std::endl;
 		}
 		catch (...)
 		{
-			throw;
+			os << "Unexpected error occured!" << std::endl;
 		}
 	}
 };

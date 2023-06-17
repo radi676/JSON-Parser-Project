@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 
-#include "../List/List.h"
+#include "../List/List.hpp"
 
 class MyString
 {

@@ -7,10 +7,10 @@
 #include "./MoveCommand.h"
 #include "./SearchCommand.h"
 #include "./SaveCommand.h"
-#include "../../Utils/List/List.h"
+#include "../../Utils/List/List.hpp"
 #include "../../Utils/String/MyString.h"
 
-#include "../../Utils/SharedPtr/SharedPtr.h"
+#include "../../Utils/SharedPtr/SharedPtr.hpp"
 
 #include "../../JsonDocument.h"
 
@@ -53,6 +53,7 @@ public:
 			if (args.getCount() != 1)
 			{
 				os << "Invalid arguments count! For more info view help!" << std::endl;
+				return new UnknownCommand(os);
 			}
 
 			return new SearchCommand(os, document, args[0]);
@@ -62,6 +63,7 @@ public:
 			if (args.getCount() != 2)
 			{
 				os << "Invalid arguments count! For more info view help!" << std::endl;
+				return new UnknownCommand(os);
 			}
 
 			return new SetCommand(os, document, args[0], args[1]);
@@ -71,6 +73,7 @@ public:
 			if (args.getCount() != 2)
 			{
 				os << "Invalid arguments count! For more info view help!" << std::endl;
+				return new UnknownCommand(os);
 			}
 
 			return new CreateCommand(os, document, args[0], args[1]);
@@ -80,6 +83,7 @@ public:
 			if (args.getCount() != 1)
 			{
 				os << "Invalid arguments count! For more info view help!" << std::endl;
+				return new UnknownCommand(os);
 			}
 
 			return new DeleteCommand(os, document, args[0]);
@@ -89,6 +93,7 @@ public:
 			if (args.getCount() != 2)
 			{
 				os << "Invalid arguments count! For more info view help!" << std::endl;
+				return new UnknownCommand(os);
 			}
 
 			return new MoveCommand(os, document, args[0], args[1]);
@@ -98,12 +103,12 @@ public:
 			if (args.getCount() == 0 || args.getCount() > 2)
 			{
 				os << "Invalid arguments count! For more info view help!" << std::endl;
+				return new UnknownCommand(os);
 			}
 
 			if (args.getCount() == 2)
 			{
 				return new SaveCommand(os, document, args[0], args[1]);
-
 			}
 
 			return new SaveCommand(os, document, args[0]);

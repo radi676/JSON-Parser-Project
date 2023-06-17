@@ -4,7 +4,7 @@
 #include "./Command.h"
 #include "../../JsonDocument.h"
 
-#include "../../Parser/Parser.h"
+#include "../../Parser/JsonPathParser.h"
 
 class MoveCommand : public Command
 {
@@ -22,18 +22,18 @@ public:
 	{
 		try
 		{
-			JsonPath from = JsonParser::parsePath(_fromPath);
-			JsonPath to = JsonParser::parsePath(_toPath);
+			JsonPath from = JsonPathParser::parsePath(_fromPath);
+			JsonPath to = JsonPathParser::parsePath(_toPath);
 			document->move(from, to);
+			os << "Command executed successfully!" << std::endl;
 		}
-		//TODO: add specific errors
 		catch (const std::exception& ex)
 		{
-			os << "Unexpected error occurred: " << ex.what() << std::endl;
+			os << "ERROR: " << ex.what() << std::endl;
 		}
 		catch (...)
 		{
-			throw;
+			os << "Unexpected error occured!" << std::endl;
 		}
 	}
 };

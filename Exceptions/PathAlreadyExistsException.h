@@ -1,18 +1,20 @@
+#pragma once
+
 #include <stdexcept>
-#include "../Parser/Path/JsonPath.h"
+#include "../Path/JsonPath.h"
 
 class PathAlreadyExistsException : public std::exception
 {
-    JsonPath path;
-    MyString desc;
+	MyString msg;
 
 public:
-    PathAlreadyExistsException(const JsonPath &path, const MyString &desc = "Unknown") : path(path), desc(desc) {}
+	PathAlreadyExistsException(const JsonPath& path, const MyString& desc = "Unknown")
+	{
+		msg = "Path already exists " + path.toString() + "\nDetails: " + desc;
+	}
 
-    const char *what() const noexcept override
-    {
-        MyString msg = "Path already exists " + path.toString() + "\Details: " + desc;
-
-        return msg.c_str();
-    }
+	const char* what() const noexcept override
+	{
+		return msg.c_str();
+	}
 };

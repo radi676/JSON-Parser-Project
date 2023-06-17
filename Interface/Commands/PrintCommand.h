@@ -16,5 +16,6 @@ public:
 	void execute() const override
 	{
 		document->print(os);
+		os << std::endl;
 	}
 };

@@ -3,15 +3,15 @@
 
 class FileWriteException : public std::exception
 {
-    MyString file;
-    MyString desc;
-
+	MyString msg;
 public:
-    FileWriteException(const MyString& file, const MyString& desc = "Unknown") : file(file), desc(desc) {}
+	FileWriteException(const MyString& file, const MyString& desc = "Unknown")
+	{
+		msg = "Couldn't write to file: " + file + " \nProblem:" + desc;
+	}
 
-    const char* what() const noexcept override
-    {
-        MyString msg = "Couldn't write to file: " + file + " \nProblem:" + desc;
-        return msg.c_str();
-    }
+	const char* what() const noexcept override
+	{
+		return msg.c_str();
+	}
 };

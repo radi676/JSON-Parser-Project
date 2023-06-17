@@ -3,30 +3,30 @@
 template <typename K, typename V>
 class Pair
 {
-    K fisrt;
-    V second;
-
+	K k;
+	V v;
 public:
-    Pair() = default;
-    Pair(const K &k, const V &v) : first(k), second(v) {}
 
-    K &first()
-    {
-        return first;
-    }
+	Pair() = default;
+	Pair(const K& k, const V& v) :k(k), v(v) { }
 
-    V &getSecond()
-    {
-        return second;
-    }
+	K& first()
+	{
+		return k;
+	}
 
-    const K &first() const
-    {
-        return first;
-    }
+	V& second()
+	{
+		return v;
+	}
 
-    const V &second() const
-    {
-        return second;
-    }
+	const K& first()const
+	{
+		return k;
+	}
+
+	const V& second()const
+	{
+		return v;
+	}
 };

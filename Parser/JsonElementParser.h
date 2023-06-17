@@ -15,9 +15,7 @@
 #include "../Exceptions/FileParseException.h"
 #include "../Exceptions/InvalidPathException.h"
 
-
-
-static class JsonParser
+class JsonElementParser
 {
 private:
 
@@ -38,7 +36,7 @@ private:
 			}
 
 			startIndex++;
-			size_t endKeyIndex = startIndex; //start key index
+			size_t endKeyIndex = startIndex;
 
 			while (elementString[endKeyIndex] != '\0' && elementString[endKeyIndex] != '"' && elementString[endKeyIndex - 1] != '\\')
 			{
@@ -67,14 +65,22 @@ private:
 
 			size_t startUnknownElementIndex = startIndex;
 			//get the index where the value ends
-			size_t endUnknownElementIndex = skipObjectTillComma(elementString, startIndex);
+			size_t endUnknownElementIndex;
+			try
+			{
+				endUnknownElementIndex = skipObjectTillComma(elementString, startIndex);
+			}
+			catch (const std::exception& ex)
+			{
+				throw InvalidJsonException(elementString, ex.what());
+			}
 
-			// TODO: mem leak
 			MyString objStr = elementString.substr(startUnknownElementIndex, endUnknownElementIndex - startUnknownElementIndex + 1);
-			try {
-				//TODO: check if key already exists in object + exception
-				object->pushBack(Pair<MyString, JsonElement>(key, *parseUnknownElement(objStr)));
+			JsonElementBase* element;
 
+			try
+			{
+				element = parseUnknownElement(objStr);
 			}
 			catch (const InvalidJsonException& ex)
 			{
@@ -84,6 +90,12 @@ private:
 			{
 				throw InvalidJsonException(objStr, "Unknown error occured while parsing json element.");
 			}
+
+			if (!object->pushBack(key, element))
+			{
+				throw InvalidJsonException(objStr, "Key already exists in json object.");
+			}
+
 			//skip comma
 			startIndex = endUnknownElementIndex + 2;
 		}
@@ -104,13 +116,20 @@ private:
 			startIndex = skipWithespace(elementString, startIndex);
 
 			size_t startUnknownElementIndex = startIndex;
-			size_t endUnknownElementIndex = skipObjectTillComma(elementString, startIndex);
+			size_t endUnknownElementIndex;
+			try
+			{
+				endUnknownElementIndex = skipObjectTillComma(elementString, startIndex);
+			}
+			catch (const std::exception& ex)
+			{
+				throw InvalidJsonException(elementString, ex.what());
+			}
 
-			// TODO: mem leak
 			MyString arrStr = elementString.substr(startUnknownElementIndex, endUnknownElementIndex - startUnknownElementIndex + 1);
 			try
 			{
-				array->pushBack(*parseUnknownElement(arrStr));
+				array->pushBack(parseUnknownElement(arrStr));
 
 			}
 			catch (const InvalidJsonException& ex)
@@ -168,8 +187,8 @@ private:
 		if (elementString.getLength() == 0)
 		{
 			throw InvalidJsonException("", "Expected a non-empty value.");
-
 		}
+
 		size_t startIndex = 0;
 		size_t endIndex = elementString.getLength() - 1;
 
@@ -211,6 +230,8 @@ private:
 
 public:
 
+	JsonElementParser() = delete;
+
 	static JsonDocument parseFile(const MyString& filePath)
 	{
 		std::ifstream ifs(filePath.c_str());
@@ -228,8 +249,7 @@ public:
 		}
 		catch (InvalidJsonException& ex)
 		{
-			//TODO: make operator + work for const char*
-			throw FileParseException(filePath, "Could not parse file.\n" + MyString(ex.what()));
+			throw FileParseException(filePath, MyString("Could not parse file.\n") + MyString(ex.what()));
 		}
 
 	}
@@ -238,104 +258,4 @@ public:
 	{
 		return JsonElement(parseUnknownElement(elementString));
 	}
-
-	static JsonPath parsePath(MyString path)
-	{
-		JsonPath res;
-		List<MyString> split;
-
-		path.trim();
-
-		if (path.getLength() == 0 || path[0] != '$')
-		{
-			throw InvalidPathException(safeContextSubstr(path, 0, 10), "Path should start from the root($)");
-		}
-
-		size_t startIndex = 1;
-		if (path[startIndex] == '.')
-		{
-			startIndex++;
-		}
-		else if (path[startIndex] != '[')
-		{
-			throw InvalidPathException(safeContextSubstr(path, startIndex, 15), "Expected either a point(.) or an opening block([)");
-
-		}
-
-		while (path[startIndex] != '\0')
-		{
-			bool inQuotes = false;
-			bool inBlock = false;
-
-			if (path[startIndex] == '.')
-			{
-				startIndex++;
-			}
-
-			//two consequent ..
-			if (path[startIndex] == '.')
-			{
-				throw InvalidPathException(safeContextSubstr(path, startIndex, 15), "Empty path key is not allowed.");
-			}
-
-			if (path[startIndex] == '[')
-			{
-				inBlock = true;
-				startIndex++;
-				if (path[startIndex] == '\'')
-				{
-					inQuotes = true;
-					startIndex++;
-				}
-			}
-
-			size_t startOfKey = startIndex;
-			size_t endIndex = startIndex;
-
-			while (path[startIndex] != '\0')
-			{
-				if (inQuotes)
-				{
-					if (path[startIndex + 1] == '\'' && path[startIndex + 2] == ']')
-					{
-						endIndex = startIndex;
-						startIndex = startIndex + 3;
-						res.push(JsonKey(path.substr(startOfKey, endIndex - startOfKey + 1)));
-						break;
-					}
-				}
-				else if (inBlock)
-				{
-					if (path[startIndex + 1] == ']')
-					{
-						endIndex = startIndex;
-						startIndex = startIndex + 2;
-						res.push(JsonKey(parseUInt(path.substr(startOfKey, endIndex - startOfKey + 1))));
-						break;
-					}
-				}
-				else
-				{
-					if (path[startIndex + 1] == '.' || path[startIndex + 1] == '[')
-					{
-						endIndex = startIndex;
-						startIndex = startIndex + 1;
-						res.push(JsonKey(path.substr(startOfKey, endIndex - startOfKey + 1)));
-						break;
-					}
-					else if (path[startIndex + 1] == '\'' || path[startIndex + 1] == ']' || path[startIndex + 1] == ' ')
-					{
-						throw InvalidPathException(safeContextSubstr(path, startIndex, 20), "Not allowed symbol in non-quoted block key. Symbol: " + path[startIndex + 1]);
-
-					}
-				}
-
-				startIndex++;
-			}
-		}
-
-		return res;
-	}
 };
-
-
