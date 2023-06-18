@@ -36,7 +36,7 @@ Course project for "Object-oriented programming with C++" @ Faculty of Mathemati
 
 
 ### Resources
-`MyString` implementation - [Angel Dimitriev](<https://github.com/Angeld55/Object-oriented_programming_FMI>)
-`Optional` implementation - [Angel Dimitriev](<https://github.com/Angeld55/Object-oriented_programming_FMI>)
-`Pair` implementation -  [Angel Dimitriev](<https://github.com/Angeld55/Object-oriented_programming_FMI>)
-`SharedPtr` implementation - [Angel Dimitriev](<https://github.com/Angeld55/Object-oriented_programming_FMI>)
+- `MyString` implementation - [Angel Dimitriev](<https://github.com/Angeld55/Object-oriented_programming_FMI>)
+- `Optional` implementation - [Angel Dimitriev](<https://github.com/Angeld55/Object-oriented_programming_FMI>)
+- `Pair` implementation -  [Angel Dimitriev](<https://github.com/Angeld55/Object-oriented_programming_FMI>)
+- `SharedPtr` implementation - [Angel Dimitriev](<https://github.com/Angeld55/Object-oriented_programming_FMI>)
