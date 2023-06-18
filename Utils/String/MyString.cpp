@@ -1,5 +1,6 @@
 #include "MyString.h"
 #include <cstring>
+#include "../Validators.h"
 #pragma warning(disable:4996)
 
 void MyString::copyFrom(const MyString& other)
@@ -157,7 +158,7 @@ void MyString::getline(std::istream& is, size_t len)
 
 std::ostream& operator<<(std::ostream& os, const MyString& str)
 {
-	std::cout << str.c_str();
+	os << str.c_str();
 	return os;
 }
 
@@ -193,22 +194,25 @@ bool operator!=(const MyString& lhs, const MyString& rhs)
 
 MyString& MyString::trim()
 {
-	size_t startIndex = 0;
-	while (data[startIndex] == ' ' || data[startIndex] == '\t' || data[startIndex] == '\n')
+	int startIndex = 0;
+	while (Validators::isWhitespace(data[startIndex]))
 	{
 		startIndex++;
 	}
 
-	size_t endIndex = length - 1;
-	while (startIndex <= endIndex && data[endIndex] == ' ' || data[endIndex] == '\t' || data[endIndex] == '\n')
+	int endIndex = length - 1;
+	while (startIndex < endIndex && Validators::isWhitespace(data[startIndex]))
 	{
 		endIndex--;
 	}
 
-	if (startIndex != 0 || endIndex != length - 1)
+	if (endIndex <= startIndex)
 	{
-		MyString res = substr(startIndex, endIndex - startIndex + 1);
-		*this = res;
+		*this = "";
+	}
+	else if (startIndex != 0 || endIndex != length - 1)
+	{
+		*this = substr(startIndex, endIndex - startIndex + 1);
 	}
 
 	return *this;
@@ -234,7 +238,7 @@ List<MyString> MyString::split(char c)const
 		endIndex++;
 	}
 
-	return std::move(res);
+	return res;
 }
 
 void MyString::replace(char what, char with)

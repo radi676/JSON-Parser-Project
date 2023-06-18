@@ -14,12 +14,15 @@ class CreateCommand : public Command
 	MyString _element;
 
 public:
-	CreateCommand(std::ostream& os, JsonDocument* document, const MyString& path, const MyString& element) : Command(os), document(document), _path(path), _element(element)
+
+	const static MyString NAME;
+
+	CreateCommand(JsonDocument* document, const MyString& path, const MyString& element) : document(document), _path(path), _element(element)
 	{
 
 	}
 
-	void execute() const override
+	void execute(std::ostream& os) const override
 	{
 		try
 		{
@@ -38,3 +41,5 @@ public:
 		}
 	}
 };
+
+const MyString CreateCommand::NAME = "create";

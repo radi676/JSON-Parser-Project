@@ -7,7 +7,7 @@ class NoKeyFoundException : public std::exception
 public:
 	NoKeyFoundException(const MyString& key, const MyString& desc = "Unknown")
 	{
-		msg = "Couldn't find key " + key + " Details: " + desc;
+		msg = "Couldn't find key: " + key + "\nDetails: " + desc;
 	}
 
 	const char* what() const noexcept override

@@ -1,14 +1,10 @@
 #pragma once
-#include "String/MyString.h"
-
-bool isWhitespace(char c)
-{
-	return c == ' ' || c == '\t' || c == '\n' || c == '\r';
-}
+#include "./String/MyString.h"
+#include "./Validators.h"
 
 size_t skipWithespace(const MyString& str, size_t startIndex)
 {
-	while (isWhitespace(str[startIndex]))
+	while (Validators::isWhitespace(str[startIndex]))
 	{
 		startIndex++;
 	}
@@ -33,7 +29,7 @@ size_t skipObjectTillComma(const MyString& str, int startIndex)
 			if (quotes == 0)
 				currlyBraces--;
 			if (currlyBraces < 0)
-				throw std::exception();
+				throw std::invalid_argument("Error parsing json, got an extra closing curly brace(}) without opening which lead to incorrect syntax!");
 			break;
 		case '[':
 			if (quotes == 0)
@@ -43,7 +39,7 @@ size_t skipObjectTillComma(const MyString& str, int startIndex)
 			if (quotes == 0)
 				parenthasis--;
 			if (parenthasis < 0)
-				throw std::exception();
+				throw std::invalid_argument("Error parsing json, got an extra closing parenthasis(]) without opening which lead to incorrect syntax!");
 			break;
 		case '"':
 			if (str[startIndex - 1] == '\\')

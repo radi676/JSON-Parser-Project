@@ -42,14 +42,34 @@ public:
 		return data.getLast();
 	}
 
+	const T& at(size_t index) const
+	{
+		if (index > data.getCount())
+		{
+			throw std::out_of_range("Index out of range.");
+		}
+
+		return data[index];
+	}
+
+	T& at(size_t index)
+	{
+		if (index > data.getCount())
+		{
+			throw std::out_of_range("Index out of range.");
+		}
+
+		return data[index];
+	}
+
 	T& operator[](size_t index)
 	{
-		return data[index];
+		return at(index);
 	}
 
 	const T& operator[](size_t index) const
 	{
-		return data[index];
+		return at(index);
 	}
 
 

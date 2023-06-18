@@ -8,13 +8,18 @@
 
 class Interface
 {
+
 public:
+	Interface() = delete;
+
 	static void run(std::ostream& os, std::istream& is)
 	{
 		os << "Welcome to Json Parser!" << std::endl;
+		os << std::endl;
+		HelpCommand().execute(os);
+		os << std::endl;
+		os << "Open a file with 'open <filePath>'" << std::endl;
 		os << "Type help to see available commands!" << std::endl;
-		HelpCommand(os).execute();
-
 
 		bool isFileOpened = false;
 		MyString currentFile;
@@ -22,6 +27,7 @@ public:
 		MyString cmd;
 		while (true)
 		{
+			os << "> ";
 			cmd.getline(is, 1024);
 			List<MyString> args = getFields(cmd);
 
@@ -33,19 +39,18 @@ public:
 
 			if (args[0] == "exit")
 			{
-				CommandFactory::freeInstance();
 				break;
 			}
 
 			if (args[0] == "help")
 			{
-				HelpCommand(os).execute();
+				HelpCommand().execute(os);
 				continue;
 			}
 
 			if (args[0] == "open")
 			{
-				if (isFileOpened) 
+				if (isFileOpened)
 				{
 					os << "File already opened!" << std::endl;
 					continue;
@@ -58,7 +63,6 @@ public:
 					{
 						document = JsonElementParser::parseFile(currentFile);
 						isFileOpened = true;
-						CommandFactory::createInstance(os, &document);
 						os << "File opened successfully!" << std::endl;
 					}
 					catch (std::exception& ex)
@@ -70,7 +74,7 @@ public:
 				{
 					os << "Invalid number of arguments!" << std::endl;
 				}
-				
+
 				continue;
 			}
 
@@ -83,7 +87,6 @@ public:
 			if (args[0] == "close")
 			{
 				isFileOpened = false;
-				CommandFactory::freeInstance();
 				os << "File closed!" << std::endl;
 				continue;
 			}
@@ -93,9 +96,9 @@ public:
 				args.insertAt(currentFile, 1);
 			}
 
-			SharedPtr<Command> command = CommandFactory::getInstance()->create(args);
+			SharedPtr<Command> command = CommandFactory::create(args, &document);
 
-			command->execute();
+			command->execute(os);
 		}
 
 	}

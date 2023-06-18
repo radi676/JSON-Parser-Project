@@ -13,12 +13,14 @@ class SaveCommand : public Command
 	MyString _element;
 
 public:
-	SaveCommand(std::ostream& os, JsonDocument* document, const MyString& path, const MyString& elementPath = "$") : Command(os), document(document), _path(path), _element(elementPath)
+	const static MyString NAME;
+
+	SaveCommand( JsonDocument* document, const MyString& path, const MyString& elementPath = "$") : document(document), _path(path), _element(elementPath)
 	{
 
 	}
 
-	void execute() const override
+	void execute(std::ostream& os) const override
 	{
 		try
 		{
@@ -36,3 +38,5 @@ public:
 		}
 	}
 };
+
+const MyString SaveCommand::NAME = "save";

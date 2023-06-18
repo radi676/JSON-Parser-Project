@@ -51,18 +51,17 @@ public:
         return *this;
     }
 
-    // TODO: FIX THROW
     const T &operator*() const
     {
         if (!data)
-            throw "sfsd";
+            throw std::logic_error("Optional is empty!");
         return *data;
     }
 
     T &operator*()
     {
         if (!data)
-            throw "sfsd";
+            throw std::logic_error("Optional is empty!");
         return *data;
     }
 

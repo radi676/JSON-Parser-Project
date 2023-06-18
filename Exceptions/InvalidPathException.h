@@ -9,7 +9,7 @@ class InvalidPathException : public std::exception
 public:
 	InvalidPathException(const MyString& context, const MyString& desc = "Unknown")
 	{
-		msg = "Couldn't parse json path around " + context + " \nProblem:" + desc;
+		msg = "Couldn't parse json path around: " + context + " \nProblem:" + desc;
 	}
 
 	const char* what() const noexcept override

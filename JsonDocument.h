@@ -17,27 +17,27 @@
 class JsonDocument : private JsonElement
 {
 	// TODO::search by regular expression
-	void traverseSearch(const MyString& key, List<JsonElement>& result, const JsonElement& element) const
+	void traverseSearch(const MyString& key, List<JsonElement>& result, JsonElement* element) const
 	{
-		if (element.type() == JsonElementBaseType::Object)
+		if (element->type() == JsonElementBaseType::Object)
 		{
-			const JsonObject& object = dynamic_cast<const JsonObject&>(element);
-			for (size_t i = 0; i < object.getCount(); i++)
+			JsonObject* object = element->to<JsonObject>();
+			for (size_t i = 0; i < object->getCount(); i++)
 			{
-				if (object[i].first() == key)
+				if ((*object)[i].first() == key)
 				{
-					result.pushBack(object[i].second());
+					result.pushBack(object->at(i).second());
 				}
 
-				traverseSearch(key, result, object[i].second());
+				traverseSearch(key, result, &object->at(i).second());
 			}
 		}
-		else if (element.value()->getType() == JsonElementBaseType::Array)
+		else if (element->value()->getType() == JsonElementBaseType::Array)
 		{
-			const JsonArray& array = dynamic_cast<const JsonArray&>(element);
-			for (size_t i = 0; i < array.getCount(); i++)
+			JsonArray* array = element->to<JsonArray>();
+			for (size_t i = 0; i < array->getCount(); i++)
 			{
-				traverseSearch(key, result, array[i]);
+				traverseSearch(key, result, &array->at(i));
 			}
 		}
 	}
@@ -60,9 +60,9 @@ class JsonDocument : private JsonElement
 				{
 					current = &(*current->to<JsonArray>())[path.arrayIndex(i)];
 				}
-				catch (const std::out_of_range& ex)
+				catch (const std::out_of_range&)
 				{
-					throw NoKeyFoundException(parseToString(path.arrayIndex(i)), "Invalid index supplied for array in json key @index=" + parseToString(i));
+					throw NoKeyFoundException(parseToString(path.arrayIndex(i)), "Invalid index supplied for array in json key @index=" + parseToString(i + 1));
 				}
 			}
 			else if (current->type() == JsonElementBaseType::Object && !path.isArray(i))
@@ -70,7 +70,7 @@ class JsonDocument : private JsonElement
 				Optional<Pair<MyString, JsonElement>*> opt = current->to<JsonObject>()->getByKey(path.key(i));
 				if (!opt)
 				{
-					throw NoKeyFoundException(path.key(i), "Missing key @index=" + parseToString(i) + " when expecting a valid index in json array: " + current->toString());
+					throw NoKeyFoundException(path.key(i), "Missing key @index=" + parseToString(i + 1) + " when expecting a valid key in json object: " + current->toString());
 				}
 
 				current = &(*opt)->second();
@@ -79,7 +79,7 @@ class JsonDocument : private JsonElement
 			{
 				MyString _key = path.isArray(i) ? parseToString(path.arrayIndex(i)) : path.key(i);
 				MyString _type = path.isArray(i) ? "array" : "object";
-				throw NoKeyFoundException(_key, "Missing key @index=" + parseToString(i) + " when expecting a deeper nesting, expected " + _type + " but got element: " + current->toString());
+				throw NoKeyFoundException(_key, "Missing key @index=" + parseToString(i + 1) + " when expecting a deeper nesting, expected " + _type + " but got element: " + current->toString());
 			}
 
 		}
@@ -111,11 +111,12 @@ public:
 		return *find(path, this);
 	}
 
-	List<JsonElement> search(const MyString& key) const // No throws
+	//should be const
+	List<JsonElement> search(const MyString& key) // No throws
 	{
 		List<JsonElement> result;
-		traverseSearch(key, result, *this);
-		return std::move(result);
+		traverseSearch(key, result, this);
+		return result;
 	}
 
 	void set(const JsonPath& path, const JsonElement& value) // throws by getByPath
@@ -146,11 +147,11 @@ public:
 				{
 					if (arr->getCount() < path.arrayIndex(i))
 					{
-						throw PathAlreadyExistsException(path, "Cannot add element at already existing index in json array, specified by key @index=" + parseToString(i));
+						throw PathAlreadyExistsException(path, "Cannot add element at unreachable index in json array, specified by key @index=" + parseToString(i + 1));
 					}
 					else if (arr->getCount() > path.arrayIndex(i))
 					{
-						throw PathAlreadyExistsException(path, "Cannot add element at unreachable index in json array, specified by key @index=" + parseToString(i));
+						throw PathAlreadyExistsException(path, "Cannot add element at already existing index in json array, specified by key @index=" + parseToString(i+1));
 					}
 
 					arr->pushBack(value);
@@ -177,7 +178,7 @@ public:
 					}
 					else
 					{
-						throw PathAlreadyExistsException(path, "Cannot get element of path at unreachable index in json array, specified by key @index=" + parseToString(i));
+						throw PathAlreadyExistsException(path, "Cannot get element of path at unreachable index in json array, specified by key @index=" + parseToString(i + 1));
 					}
 
 				}
@@ -192,7 +193,7 @@ public:
 					if (i == levels - 1)
 					{
 						// path exists already
-						throw PathAlreadyExistsException(path, "Cannot add element where key already exists in json object, specified by key @index=" + parseToString(i));
+						throw PathAlreadyExistsException(path, "Cannot add element where key already exists in json object, specified by key @index=" + parseToString(i + 1));
 					}
 
 					current = &(*opt)->second();
@@ -205,9 +206,9 @@ public:
 						toAdd = JsonArray();
 					}
 
-					if (!obj->pushBack(path.key(i), toAdd)) 
+					if (!obj->pushBack(path.key(i), toAdd))
 					{
-						throw PathAlreadyExistsException(path, "Cannot add element where key already exists, specified by key @index=" + parseToString(i));
+						throw PathAlreadyExistsException(path, "Cannot add element where key already exists, specified by key @index=" + parseToString(i + 1));
 					}
 
 					current = &(obj->getLast().second());
@@ -216,7 +217,7 @@ public:
 			else
 			{
 				// Path exists to somewhere but cannot continue/ i.e. in the middle of path threre is no obj/arr element but str/int
-				throw PathAlreadyExistsException(path, "Cannot add element where key already exists and is not of the right composite type, specified by key @index=" + parseToString(i));
+				throw PathAlreadyExistsException(path, "Cannot add element where key already exists and is not of the right composite type, specified by key @index=" + parseToString(i + 1));
 			}
 
 		}
@@ -236,7 +237,7 @@ public:
 				{
 					parent->to<JsonArray>()->removeAt(key.arrayIndex());
 				}
-				catch (const std::out_of_range& ex)
+				catch (const std::out_of_range& )
 				{
 					throw NoKeyFoundException("Index of json array @" + parseToString(key.arrayIndex()), "Invalid index specified. Out of range.");
 				}
@@ -263,7 +264,7 @@ public:
 		{
 			throw NoPathFoundException(path, e.what());
 		}
-		catch (const NoPathFoundException& ex)
+		catch (const NoPathFoundException&)
 		{
 			throw;
 		}

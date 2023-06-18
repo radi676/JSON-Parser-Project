@@ -18,7 +18,6 @@
 class JsonElementParser
 {
 private:
-
 	static JsonElementBase* parseObject(MyString elementString)
 	{
 		elementString.trim();
@@ -88,7 +87,7 @@ private:
 			}
 			catch (std::exception& ex)
 			{
-				throw InvalidJsonException(objStr, "Unknown error occured while parsing json element.");
+				throw InvalidJsonException(objStr, "Unknown error occured while parsing json element. \nDetails: "+ MyString(ex.what()));
 			}
 
 			if (!object->pushBack(key, element))
@@ -138,7 +137,7 @@ private:
 			}
 			catch (std::exception& ex)
 			{
-				throw InvalidJsonException(arrStr, "Unknown error occured while parsing json element.");
+				throw InvalidJsonException(arrStr, "Unknown error occured while parsing json element. \nDetails:"+ MyString(ex.what()));
 			}
 
 			// skip comma
@@ -231,6 +230,7 @@ private:
 public:
 
 	JsonElementParser() = delete;
+
 
 	static JsonDocument parseFile(const MyString& filePath)
 	{

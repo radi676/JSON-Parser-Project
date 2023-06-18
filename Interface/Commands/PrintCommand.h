@@ -8,14 +8,18 @@ class PrintCommand : public Command
 {
 	JsonDocument* document;
 public:
-	PrintCommand(std::ostream& os, JsonDocument* document) : Command(os), document(document)
+	const static MyString NAME;
+
+	PrintCommand( JsonDocument* document) : document(document)
 	{
 
 	}
 
-	void execute() const override
+	void execute(std::ostream& os) const override
 	{
 		document->print(os);
 		os << std::endl;
 	}
 };
+
+const MyString PrintCommand::NAME = "print";

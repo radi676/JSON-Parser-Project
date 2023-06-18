@@ -5,14 +5,15 @@
 
 class UnknownCommand : public Command
 {
+	MyString msg;
 public:
-	UnknownCommand(std::ostream& os) : Command(os)
+	UnknownCommand(const MyString& msg = "") : msg(msg)
 	{
 
 	}
 
-	void execute() const override
+	void execute(std::ostream& os) const override
 	{
-		os << "Unknown command. Type help for more info." << std::endl;
+		os << "Unknown command. " + msg + " Type help for more info." << std::endl;
 	}
 };

@@ -19,7 +19,7 @@ public:
 	List();
 	explicit List(size_t capacity);
 	List(const List<T>& other);
-	List(List<T>&& other);
+	List(List<T>&& other) noexcept;
 	List<T>& operator=(const List<T>& other);
 	List<T>& operator=(List<T>&& other);
 	~List<T>();
@@ -30,7 +30,7 @@ public:
 
 	void pushBack(T&& other);
 	void pushBack(const T& other);
-	void pushFront(T&& other);
+	void pushFront(T&& other) ;
 	void pushFront(const T& other);
 	void insertAt(T&& other, size_t index);
 	void insertAt(const T& other, size_t index);
@@ -324,7 +324,7 @@ bool List<T>::contains(const T& element) const
 }
 
 template <typename T>
-List<T>::List(List&& other)
+List<T>::List(List&& other) noexcept
 {
 	moveFrom(std::move(other));
 }
@@ -341,13 +341,12 @@ List<T>& List<T>::operator=(List&& other)
 	return *this;
 }
 
-// TODO: check if is ok
 template <typename T>
 T& List<T>::getLast()
 {
 	if (count == 0)
 	{
-		throw std::exception();
+		throw std::logic_error("List is empty");
 	}
 
 	return data[count - 1];
@@ -357,7 +356,7 @@ const T& List<T>::getLast() const
 {
 	if (count == 0)
 	{
-		throw std::exception();
+		throw std::logic_error("List is empty");
 	}
 
 	return data[count - 1];

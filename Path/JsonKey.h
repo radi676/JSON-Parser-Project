@@ -64,7 +64,7 @@ public:
 	{
 		if (_isArray)
 		{
-			throw std::exception();
+			throw std::logic_error("Json key is index.");
 		}
 		return _data.key;
 	}
@@ -73,7 +73,7 @@ public:
 	{
 		if (!_isArray)
 		{
-			throw std::exception();
+			throw std::logic_error("Json key is not index.");
 		}
 
 		return _data.arrayIndex;

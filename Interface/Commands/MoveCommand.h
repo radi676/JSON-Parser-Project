@@ -13,12 +13,14 @@ class MoveCommand : public Command
 	MyString _toPath;
 
 public:
-	MoveCommand(std::ostream& os, JsonDocument* document, const MyString& fromPath, const MyString& toPath) : Command(os), document(document), _fromPath(fromPath), _toPath(toPath)
+	const static MyString NAME;
+
+	MoveCommand( JsonDocument* document, const MyString& fromPath, const MyString& toPath) : document(document), _fromPath(fromPath), _toPath(toPath)
 	{
 
 	}
 
-	void execute() const override
+	void execute(std::ostream& os) const override
 	{
 		try
 		{
@@ -37,3 +39,5 @@ public:
 		}
 	}
 };
+
+const MyString MoveCommand::NAME = "move";

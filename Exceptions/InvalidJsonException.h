@@ -7,7 +7,7 @@ class InvalidJsonException : public std::exception
 public:
 	InvalidJsonException(const MyString& context, const MyString& desc = "Unknown")
 	{
-		msg = "Couldn't parse json value around " + context + " \nProblem:" + desc;
+		msg = "Couldn't parse json value around: " + context + " \nProblem:" + desc;
 	}
 
 	const char* what() const noexcept override

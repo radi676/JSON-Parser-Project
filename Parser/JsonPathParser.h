@@ -11,6 +11,7 @@
 class JsonPathParser
 {
 public:
+
 	JsonPathParser() = delete;
 
 	static JsonPath parsePath(MyString path)
@@ -25,6 +26,11 @@ public:
 			throw InvalidPathException(safeContextSubstr(path, 0, 10), "Path should start from the root($)");
 		}
 
+		if (path.getLength() == 1)
+		{
+			return JsonPath();
+		}
+
 		size_t startIndex = 1;
 		if (path[startIndex] == '.')
 		{
@@ -33,7 +39,6 @@ public:
 		else if (path[startIndex] != '[')
 		{
 			throw InvalidPathException(safeContextSubstr(path, startIndex, 15), "Expected either a point(.) or an opening block([)");
-
 		}
 
 		while (path[startIndex] != '\0')

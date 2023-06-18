@@ -18,7 +18,7 @@ public:
 	{
 		if (i >= path.getCount())
 		{
-			throw std::exception();
+			throw std::out_of_range("Index out of range.");
 		}
 
 		return path[i].key();
@@ -28,7 +28,7 @@ public:
 	{
 		if (i >= path.getCount())
 		{
-			throw std::exception();
+			throw std::out_of_range("Index out of range.");
 		}
 
 		return path[i].arrayIndex();
@@ -38,7 +38,7 @@ public:
 	{
 		if (i >= path.getCount())
 		{
-			throw std::exception();
+			throw std::out_of_range("Index out of range.");
 		}
 
 		return path[i].isArray();
@@ -58,30 +58,34 @@ public:
 	{
 		JsonPath parentPath = *this;
 		parentPath.path.removeAt(path.getCount() - 1);
-		return std::move(parentPath);
+		return parentPath;
 	}
 
 	MyString toString() const noexcept
 	{
-		MyString result;
+		MyString result = "$";
+		if (path.getCount() > 0)
+		{
+			result += ".";
+		}
+
 		for (size_t i = 0; i < path.getCount(); i++)
 		{
 			if (path[i].isArray())
 			{
-				result += parseToString(path[i].arrayIndex());
+				result += "[" + parseToString(path[i].arrayIndex()) + "]";
 			}
 			else
 			{
-				result += path[i].key();
+				result += "['" + path[i].key() + "']";
 			}
 
-			if (i + 1 < path.getCount() && path[i + 1].isArray())
+			if (i + 1 < path.getCount() && !path[i + 1].isArray())
 			{
 				result += ".";
 			}
 		}
 
-
-		return std::move(result);
+		return result;
 	}
 };

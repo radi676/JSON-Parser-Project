@@ -19,129 +19,83 @@
 
 class CommandFactory
 {
-	std::ostream& os;
-	JsonDocument* document;
-
-	static CommandFactory* instance;
-	CommandFactory(std::ostream& os, JsonDocument* document) : os(os), document(document)
-	{
-
-	}
-
 public:
+	CommandFactory() = delete;
 	CommandFactory(const CommandFactory&) = delete;
 	CommandFactory& operator=(const CommandFactory&) = delete;
 
-	static CommandFactory* createInstance(std::ostream& os, JsonDocument* document);
-	static CommandFactory* getInstance();
-	static void freeInstance();
-
 public:
-	SharedPtr<Command> create(const List<MyString>& arguments)
+	static SharedPtr<Command> create(const List<MyString>& arguments, JsonDocument* document)
 	{
 		MyString cmd = arguments[0];
 		List<MyString> args = arguments;
 		args.removeAt(0);
 
-		// TODO: enum
-		if (cmd == "print")
+		if (cmd == PrintCommand::NAME)
 		{
-			return new PrintCommand(os, document);
+			return new PrintCommand(document);
 		}
-		else if (cmd == "search")
-		{
-			if (args.getCount() != 1)
-			{
-				os << "Invalid arguments count! For more info view help!" << std::endl;
-				return new UnknownCommand(os);
-			}
-
-			return new SearchCommand(os, document, args[0]);
-		}
-		else if (cmd == "set")
-		{
-			if (args.getCount() != 2)
-			{
-				os << "Invalid arguments count! For more info view help!" << std::endl;
-				return new UnknownCommand(os);
-			}
-
-			return new SetCommand(os, document, args[0], args[1]);
-		}
-		else if (cmd == "create")
-		{
-			if (args.getCount() != 2)
-			{
-				os << "Invalid arguments count! For more info view help!" << std::endl;
-				return new UnknownCommand(os);
-			}
-
-			return new CreateCommand(os, document, args[0], args[1]);
-		}
-		else if (cmd == "delete")
+		else if (cmd == SearchCommand::NAME)
 		{
 			if (args.getCount() != 1)
 			{
-				os << "Invalid arguments count! For more info view help!" << std::endl;
-				return new UnknownCommand(os);
+				return new UnknownCommand("Invalid arguments count!");
 			}
 
-			return new DeleteCommand(os, document, args[0]);
+			return new SearchCommand(document, args[0]);
 		}
-		else if (cmd == "move")
+		else if (cmd == SetCommand::NAME)
 		{
 			if (args.getCount() != 2)
 			{
-				os << "Invalid arguments count! For more info view help!" << std::endl;
-				return new UnknownCommand(os);
+				return new UnknownCommand("Invalid arguments count!");
 			}
 
-			return new MoveCommand(os, document, args[0], args[1]);
+			return new SetCommand(document, args[0], args[1]);
 		}
-		else if (cmd == "save" || cmd == "saveas")
+		else if (cmd == CreateCommand::NAME)
+		{
+			if (args.getCount() != 2)
+			{
+				return new UnknownCommand("Invalid arguments count!");
+			}
+
+			return new CreateCommand(document, args[0], args[1]);
+		}
+		else if (cmd == DeleteCommand::NAME)
+		{
+			if (args.getCount() != 1)
+			{
+				return new UnknownCommand("Invalid arguments count!");
+			}
+
+			return new DeleteCommand(document, args[0]);
+		}
+		else if (cmd == MoveCommand::NAME)
+		{
+			if (args.getCount() != 2)
+			{
+				return new UnknownCommand("Invalid arguments count!");
+			}
+
+			return new MoveCommand(document, args[0], args[1]);
+		}
+		else if (cmd == SaveCommand::NAME || cmd == "saveas")
 		{
 			if (args.getCount() == 0 || args.getCount() > 2)
 			{
-				os << "Invalid arguments count! For more info view help!" << std::endl;
-				return new UnknownCommand(os);
+				return new UnknownCommand("Invalid arguments count!");
 			}
 
 			if (args.getCount() == 2)
 			{
-				return new SaveCommand(os, document, args[0], args[1]);
+				return new SaveCommand(document, args[0], args[1]);
 			}
 
-			return new SaveCommand(os, document, args[0]);
+			return new SaveCommand(document, args[0]);
 		}
 
-		return new UnknownCommand(os);
+		return new UnknownCommand();
 
 	}
 };
-
-CommandFactory* CommandFactory::getInstance() {
-	if (instance == nullptr) {
-		throw std::exception();
-	}
-
-	return instance;
-}
-
-CommandFactory* CommandFactory::createInstance(std::ostream& os, JsonDocument* document)
-{
-	if (instance != nullptr)
-	{
-		throw std::exception();
-	}
-
-	instance = new CommandFactory(os, document);
-}
-
-
-void CommandFactory::freeInstance()
-{
-	delete instance;
-	instance = nullptr;
-}
-
-CommandFactory* CommandFactory::instance = nullptr;

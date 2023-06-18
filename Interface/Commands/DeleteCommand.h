@@ -11,13 +11,16 @@ class DeleteCommand : public Command
 	JsonDocument* document;
 	MyString _path;
 
+
 public:
-	DeleteCommand(std::ostream& os, JsonDocument* document, const MyString& path) : Command(os), document(document), _path(path)
+	const static MyString NAME;
+
+	DeleteCommand( JsonDocument* document, const MyString& path) :  document(document), _path(path)
 	{
 
 	}
 
-	void execute() const override
+	void execute(std::ostream& os) const override
 	{
 		try
 		{
@@ -35,3 +38,5 @@ public:
 		}
 	}
 };
+
+const MyString DeleteCommand::NAME = "delete";

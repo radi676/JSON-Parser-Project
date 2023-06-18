@@ -10,20 +10,22 @@ class SearchCommand : public Command
 	MyString _key;
 
 public:
-	SearchCommand(std::ostream& os, JsonDocument* document, const MyString& key) : Command(os), document(document), _key(key)
+	const static MyString NAME;
+
+	SearchCommand(JsonDocument* document, const MyString& key) : document(document), _key(key)
 	{
 
 	}
 
-	void execute() const override
+	void execute(std::ostream& os) const override
 	{
 		try
 		{
 			List<JsonElement> result = document->search(_key);
 			os << "[" << std::endl;
-			for (int i = 0; i < result.getCount() - 1; i++)
+			for (int i = 1; i < (int)result.getCount(); i++)
 			{
-				result[i].print(os, 0, 0);
+				result[i - 1].print(os, 0, 0);
 				os << "," << std::endl;
 			}
 
@@ -45,3 +47,5 @@ public:
 		}
 	}
 };
+
+const MyString SearchCommand::NAME = "search";

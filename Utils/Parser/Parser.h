@@ -1,13 +1,9 @@
 #pragma once
 
 #include "../String/MyString.h"
+#include "../Validators.h"
 
 #include <sstream>
-
-bool isDigit(char c)
-{
-	return c >= '0' && c <= '9';
-}
 
 bool isInteger(MyString elementString)
 {
@@ -24,7 +20,7 @@ bool isInteger(MyString elementString)
 
 	while (ind < elementString.getLength())
 	{
-		if (!isDigit(elementString[ind]))
+		if (!Validators::isDigit(elementString[ind]))
 		{
 			return false;
 		}
@@ -49,9 +45,9 @@ int parseInt(MyString elementString)
 
 	while (ind < elementString.getLength())
 	{
-		if (!isDigit(elementString[ind]))
+		if (!Validators::isDigit(elementString[ind]))
 		{
-			throw std::exception();
+			throw std::invalid_argument("Invalid integer number character found!");
 		}
 		result = result * 10 + elementString[ind] - '0';
 		ind++;
@@ -60,7 +56,6 @@ int parseInt(MyString elementString)
 	return result * negative;
 }
 
-// TODO: support e syntax
 bool parseDecimal(MyString elementString)
 {
 	size_t ind = 0;
@@ -74,12 +69,12 @@ bool parseDecimal(MyString elementString)
 
 	if (elementString.getLength() - ind == 0)
 	{
-		throw std::exception();
+		throw std::invalid_argument("String is empty!");
 	}
 
-	if (!isDigit(elementString[ind]))
+	if (!Validators::isDigit(elementString[ind]))
 	{
-		throw std::exception();
+		throw std::invalid_argument("String contains non-digit characters!");
 	}
 
 	bool isValidPoint = false;
@@ -88,7 +83,7 @@ bool parseDecimal(MyString elementString)
 
 	while (ind < elementString.getLength())
 	{
-		if (!isDigit(elementString[ind]))
+		if (!Validators::isDigit(elementString[ind]))
 		{
 			if (!isValidPoint && elementString[ind] == '.')
 			{
@@ -98,7 +93,8 @@ bool parseDecimal(MyString elementString)
 			}
 			else
 			{
-				throw std::exception();
+				throw std::invalid_argument("Invalid decimal number fomat!");
+
 			}
 		}
 
@@ -117,7 +113,6 @@ bool parseDecimal(MyString elementString)
 	return negative * (afterDot + beforeDot);
 }
 
-// TODO: support e syntax
 double isDecimal(MyString elementString)
 {
 	size_t ind = 0;
@@ -132,7 +127,7 @@ double isDecimal(MyString elementString)
 		return false;
 	}
 
-	if (!isDigit(elementString[ind]))
+	if (!Validators::isDigit(elementString[ind]))
 	{
 		return false;
 	}
@@ -141,7 +136,7 @@ double isDecimal(MyString elementString)
 
 	while (ind < elementString.getLength())
 	{
-		if (!isDigit(elementString[ind]))
+		if (!Validators::isDigit(elementString[ind]))
 		{
 			if (!isValidPoint && elementString[ind] == '.')
 			{
@@ -164,7 +159,7 @@ size_t parseUInt(const MyString& str)
 	int res = parseInt(str);
 	if (res < 0)
 	{
-		throw std::exception();
+		throw std::invalid_argument("Invalid unsigned number fomat!");
 	}
 
 	return res;
@@ -176,4 +171,3 @@ MyString parseToString(size_t n)
 	ss << n;
 	return ss.str().c_str();
 }
-
