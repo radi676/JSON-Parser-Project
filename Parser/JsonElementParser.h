@@ -129,7 +129,6 @@ private:
 			try
 			{
 				array->pushBack(parseUnknownElement(arrStr));
-
 			}
 			catch (const InvalidJsonException& ex)
 			{

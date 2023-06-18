@@ -10,26 +10,26 @@
 #include "./Exceptions/FileWriteException.h"
 
 #include "./Utils/Parser/Parser.h"
+#include "./Utils/Regex/Regex.h"
 
 #include <fstream>
 #include <sstream>
 
 class JsonDocument : private JsonElement
 {
-	// TODO::search by regular expression
-	void traverseSearch(const MyString& key, List<JsonElement>& result, JsonElement* element) const
+	void traverseSearch(const Regex& regex, List<JsonElement>& result, JsonElement* element) const
 	{
 		if (element->type() == JsonElementBaseType::Object)
 		{
 			JsonObject* object = element->to<JsonObject>();
 			for (size_t i = 0; i < object->getCount(); i++)
 			{
-				if ((*object)[i].first() == key)
+				if (regex.match((*object)[i].first()))
 				{
 					result.pushBack(object->at(i).second());
 				}
 
-				traverseSearch(key, result, &object->at(i).second());
+				traverseSearch(regex, result, &object->at(i).second());
 			}
 		}
 		else if (element->value()->getType() == JsonElementBaseType::Array)
@@ -37,7 +37,7 @@ class JsonDocument : private JsonElement
 			JsonArray* array = element->to<JsonArray>();
 			for (size_t i = 0; i < array->getCount(); i++)
 			{
-				traverseSearch(key, result, &array->at(i));
+				traverseSearch(regex, result, &array->at(i));
 			}
 		}
 	}
@@ -115,7 +115,8 @@ public:
 	List<JsonElement> search(const MyString& key) // No throws
 	{
 		List<JsonElement> result;
-		traverseSearch(key, result, this);
+		Regex regex(key);
+		traverseSearch(regex, result, this);
 		return result;
 	}
 
@@ -151,7 +152,7 @@ public:
 					}
 					else if (arr->getCount() > path.arrayIndex(i))
 					{
-						throw PathAlreadyExistsException(path, "Cannot add element at already existing index in json array, specified by key @index=" + parseToString(i+1));
+						throw PathAlreadyExistsException(path, "Cannot add element at already existing index in json array, specified by key @index=" + parseToString(i + 1));
 					}
 
 					arr->pushBack(value);
@@ -180,9 +181,7 @@ public:
 					{
 						throw PathAlreadyExistsException(path, "Cannot get element of path at unreachable index in json array, specified by key @index=" + parseToString(i + 1));
 					}
-
 				}
-
 			}
 			else if (current->type() == JsonElementBaseType::Object && !path.isArray(i))
 			{
@@ -237,7 +236,7 @@ public:
 				{
 					parent->to<JsonArray>()->removeAt(key.arrayIndex());
 				}
-				catch (const std::out_of_range& )
+				catch (const std::out_of_range&)
 				{
 					throw NoKeyFoundException("Index of json array @" + parseToString(key.arrayIndex()), "Invalid index specified. Out of range.");
 				}
@@ -248,7 +247,7 @@ public:
 
 				if (!parent->to<JsonObject>()->removeByKey(_key))
 				{
-					throw NoKeyFoundException(_key, "Couln't find and delete key in json Object.");
+					throw NoKeyFoundException(_key, "Couldn't find and delete key in json Object.");
 				}
 			}
 			else

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "./Command.h"
 #include "./PrintCommand.h"
 #include "./CreateCommand.h"
@@ -7,15 +8,13 @@
 #include "./MoveCommand.h"
 #include "./SearchCommand.h"
 #include "./SaveCommand.h"
-#include "../../Utils/List/List.hpp"
-#include "../../Utils/String/MyString.h"
-
-#include "../../Utils/SharedPtr/SharedPtr.hpp"
+#include "./UnknownCommand.h"
 
 #include "../../JsonDocument.h"
 
-#include "./UnknownCommand.h"
-
+#include "../../Utils/List/List.hpp"
+#include "../../Utils/String/MyString.h"
+#include "../../Utils/SharedPtr/SharedPtr.hpp"
 
 class CommandFactory
 {
@@ -33,6 +32,11 @@ public:
 
 		if (cmd == PrintCommand::NAME)
 		{
+			if (args.getCount() != 0)
+			{
+				return new UnknownCommand("Invalid arguments count!");
+			}
+
 			return new PrintCommand(document);
 		}
 		else if (cmd == SearchCommand::NAME)

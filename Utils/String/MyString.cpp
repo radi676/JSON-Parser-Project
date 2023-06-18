@@ -201,12 +201,12 @@ MyString& MyString::trim()
 	}
 
 	int endIndex = length - 1;
-	while (startIndex < endIndex && Validators::isWhitespace(data[startIndex]))
+	while (startIndex < endIndex && Validators::isWhitespace(data[endIndex]))
 	{
 		endIndex--;
 	}
 
-	if (endIndex <= startIndex)
+	if (endIndex < startIndex || (startIndex == endIndex && Validators::isWhitespace(data[startIndex])))
 	{
 		*this = "";
 	}
