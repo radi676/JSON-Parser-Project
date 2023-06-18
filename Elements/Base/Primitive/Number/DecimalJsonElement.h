@@ -1,15 +1,10 @@
 #pragma once
-#include "../PrimitiveJsonElement.h"
+#include "../PrimitiveJsonElement.hpp"
 
 class DecimalJsonElement : public PrimitiveJsonElement<double>
 {
-public:
-    DecimalJsonElement(double num) : PrimitiveJsonElement(num,JsonElementBaseType::Decimal)
-    {
-    }
 
-    virtual JsonElementBase *clone() const override
-    {
-        return new DecimalJsonElement(*this);
-    }
+public:
+	DecimalJsonElement(double num);
+	virtual JsonElementBase* clone() const override;
 };

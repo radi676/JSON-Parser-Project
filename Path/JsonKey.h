@@ -17,82 +17,20 @@ class JsonKey
 	bool _isArray;
 
 	// Needed _data key is not primitive data type
-	void copyFrom(const JsonKey& other)
-	{
-		_isArray = other._isArray;
-		if (_isArray)
-		{
-			_data.arrayIndex = other._data.arrayIndex;
-		}
-		else
-		{
-			_data.key = other._data.key;
-		}
-	}
+	void copyFrom(const JsonKey& other);
 
 public:
 	JsonKey() = default;
-
-	JsonKey(const MyString& key)
-	{
-		setKey(key);
-	}
-
-	JsonKey(const char* key)
-	{
-		setKey(key);
-	}
-
-	JsonKey(size_t index)
-	{
-		setArray(index);
-	}
+	JsonKey(const MyString& key);
+	JsonKey(const char* key);
+	JsonKey(size_t index);
 
 	// Needed _data key is not primitive data type
-	JsonKey(const JsonKey& other)
-	{
-		copyFrom(other);
-	}
-
-	JsonKey& operator=(const JsonKey& other)
-	{
-		copyFrom(other);
-		return *this;
-	}
-
-	const MyString& key() const
-	{
-		if (_isArray)
-		{
-			throw std::logic_error("Json key is index.");
-		}
-		return _data.key;
-	}
-
-	size_t arrayIndex() const
-	{
-		if (!_isArray)
-		{
-			throw std::logic_error("Json key is not index.");
-		}
-
-		return _data.arrayIndex;
-	}
-
-	void setArray(size_t index)
-	{
-		_isArray = true;
-		_data.arrayIndex = index;
-	}
-
-	void setKey(const MyString& key)
-	{
-		_isArray = false;
-		_data.key = key;
-	}
-
-	bool isArray() const
-	{
-		return _isArray;
-	}
+	JsonKey(const JsonKey& other);
+	JsonKey& operator=(const JsonKey& other);
+	const MyString& key() const;
+	size_t arrayIndex() const;
+	void setArray(size_t index);
+	void setKey(const MyString& key);
+	bool isArray() const;
 };

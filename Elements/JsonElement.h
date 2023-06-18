@@ -23,7 +23,7 @@ public:
 
 	virtual void print(std::ostream& o, size_t inset = 0, bool shouldInset = true) const
 	{
-		printInset(o, shouldInset ? inset : 0);
+		Output::printInset(o, shouldInset ? inset : 0);
 		_value->print(o, inset);
 	}
 

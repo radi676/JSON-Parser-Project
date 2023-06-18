@@ -1,17 +1,14 @@
-#pragma once
-
-#include "../List/List.hpp"
-#include "../String/MyString.h"
+#include "./InputUtils.h"
 #include "../Helpers.h"
 
-List<MyString> getFields(const MyString& str)
+List<MyString> InputUtils::getFields(const MyString& str)
 {
 	List<MyString> fields;
 
 	size_t startIndex = 0;
 	bool isInQuotes = false;
 
-	while (str[startIndex = skipWithespace(str, startIndex)] != '\0')
+	while (str[startIndex = Helpers::skipWithespace(str, startIndex)] != '\0')
 	{
 		isInQuotes = str[startIndex] == '"';
 		char delim = isInQuotes ? '"' : ' ';

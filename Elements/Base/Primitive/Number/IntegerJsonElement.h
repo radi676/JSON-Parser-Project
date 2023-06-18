@@ -1,15 +1,9 @@
 #pragma once
-#include "../PrimitiveJsonElement.h"
+#include "../PrimitiveJsonElement.hpp"
 
 class IntegerJsonElement : public PrimitiveJsonElement<int>
 {
 public:
-    IntegerJsonElement(int num) : PrimitiveJsonElement(num,JsonElementBaseType::Integer)
-    {
-    }
-    
-    virtual JsonElementBase *clone() const override
-    {
-        return new IntegerJsonElement(*this);
-    }
+	IntegerJsonElement(int num);
+	virtual JsonElementBase* clone() const override;
 };

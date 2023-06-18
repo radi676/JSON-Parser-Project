@@ -1,12 +1,12 @@
 #pragma once
-#include "iostream"
+#include <iostream>
 
-const char INSET_SYMBOL = '\t';
-
-void printInset(std::ostream &o, size_t inset)
+class Output
 {
-    for (size_t i = 0; i < inset; i++)
-    {
-        o << INSET_SYMBOL;
-    }
-}
+    static const char INSET_SYMBOL = '\t';
+
+public:
+    Output() = delete;
+    static void printInset(std::ostream& o, size_t inset);
+};
+

@@ -1,10 +1,7 @@
-#pragma once
-
-#include "../String/MyString.h"
-#include <fstream>
+#include "./FileUtils.h"
 
 
-size_t getFileSize(std::ifstream& ifs)
+size_t FileUtils::getFileSize(std::ifstream& ifs)
 {
 	size_t pos = ifs.tellg();
 
@@ -15,10 +12,11 @@ size_t getFileSize(std::ifstream& ifs)
 	return res;
 }
 
-MyString readFile(std::ifstream& ifs)
+
+MyString FileUtils::readFile(std::ifstream& ifs)
 {
 	size_t capacity = getFileSize(ifs);
-	MyString res(capacity + 1);
+	char* res = new char[capacity];
 	size_t i = 0;
 	while (true)
 	{
@@ -33,6 +31,7 @@ MyString readFile(std::ifstream& ifs)
 	}
 
 	res[i] = '\0';
-	res.length = i;
-	return std::move(res);
+	MyString r = res;
+	delete res;
+	return r;
 }

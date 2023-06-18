@@ -1,7 +1,8 @@
+#pragma warning(disable:4996)
 #include "MyString.h"
 #include <cstring>
-#include "../Validators.h"
-#pragma warning(disable:4996)
+#include <fstream>
+#include "../Validators/Validators.h"
 
 void MyString::copyFrom(const MyString& other)
 {
@@ -250,5 +251,4 @@ void MyString::replace(char what, char with)
 			data[i] = with;
 		}
 	}
-
 }

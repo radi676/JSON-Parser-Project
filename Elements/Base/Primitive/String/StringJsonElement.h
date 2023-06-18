@@ -1,22 +1,12 @@
 #pragma once
-#include "../PrimitiveJsonElement.h"
+#include "../PrimitiveJsonElement.hpp"
 #include "../../../../Utils/String/MyString.h"
 
 class StringJsonElement : public PrimitiveJsonElement<MyString>
 {
 
 public:
-    StringJsonElement(const MyString &str) : PrimitiveJsonElement(str,JsonElementBaseType::String)
-    {
-    }
-
-    virtual JsonElementBase *clone() const override
-    {
-        return new StringJsonElement(*this);
-    }
-
-    virtual void print(std::ostream &o, size_t inset = 0) const override
-    {
-        o << "\"" << data << "\"";
-    }
+    StringJsonElement(const MyString& str);
+    virtual JsonElementBase* clone() const override;
+    virtual void print(std::ostream& o, size_t inset = 0) const override;
 };

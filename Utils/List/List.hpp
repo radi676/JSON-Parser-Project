@@ -1,4 +1,5 @@
 #pragma once
+#include <stdexcept>
 
 const size_t RESIZE_FACTOR = 2;
 const size_t INITIAL_CAPACITY = 10;
