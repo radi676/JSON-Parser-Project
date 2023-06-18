@@ -47,7 +47,7 @@ class JsonDocument : private JsonElement
 		return find(path.parent(), &root);
 	}
 
-	JsonElement* find(const JsonPath& path, JsonElement* root)
+	JsonElement* find(const JsonPath& path, JsonElement* root) const
 	{
 		JsonElement* current = root;
 		size_t levels = path.length();
@@ -81,7 +81,6 @@ class JsonDocument : private JsonElement
 				MyString _type = path.isArray(i) ? "array" : "object";
 				throw NoKeyFoundException(_key, "Missing key @index=" + parseToString(i + 1) + " when expecting a deeper nesting, expected " + _type + " but got element: " + current->toString());
 			}
-
 		}
 
 		return current;
@@ -97,30 +96,24 @@ public:
 
 	}
 
-	// throws pathNotFoundException
-	// should be const
-	void print(std::ostream& ouputStream, const JsonPath& path = JsonPath())
+	// throws NoPathFoundException
+	void print(std::ostream& ouputStream, const JsonPath& path = JsonPath()) const
 	{
-		JsonElement* element = find(path, this);
+		JsonElement* element = find(path, const_cast<JsonDocument*>(this));
 		element->print(ouputStream);
 	}
 
-	//should be const
-	JsonElement find(const JsonPath& path) // throws NoFoundPath
-	{
-		return *find(path, this);
-	}
-
-	//should be const
-	List<JsonElement> search(const MyString& key) // No throws
+	// No throws
+	List<JsonElement> search(const MyString& key) const
 	{
 		List<JsonElement> result;
 		Regex regex(key);
-		traverseSearch(regex, result, this);
+		traverseSearch(regex, result, const_cast<JsonDocument*>(this));
 		return result;
 	}
 
-	void set(const JsonPath& path, const JsonElement& value) // throws by getByPath
+	// throws NoPathFoundException
+	void set(const JsonPath& path, const JsonElement& value)
 	{
 		try
 		{
@@ -133,10 +126,11 @@ public:
 		}
 	}
 
-	// Throws PathAlreadyExistsException
+	// throws PathAlreadyExistsException
 	void create(const JsonPath& path, const JsonElement& value)
 	{
-		JsonElement* current = this;
+		JsonDocument substitute(this->value()->clone());
+		JsonElement* current = &substitute;
 		size_t levels = path.length();
 
 		for (size_t i = 0; i < levels; i++)
@@ -156,6 +150,7 @@ public:
 					}
 
 					arr->pushBack(value);
+					*this = substitute;
 					return;
 				}
 				else
@@ -222,8 +217,10 @@ public:
 		}
 
 		current->setValue(value.value());
+		*this = substitute;
 	}
 
+	// throws NoPathFoundException
 	void deleteElement(const JsonPath& path)
 	{
 		try {
@@ -269,7 +266,8 @@ public:
 		}
 	}
 
-	void move(const JsonPath& from, const JsonPath& to) // throws NoPathFoundException, PathAlreadyExistsException
+	// throws NoPathFoundException, PathAlreadyExistsException
+	void move(const JsonPath& from, const JsonPath& to)
 	{
 		JsonElement toAdd;
 
@@ -283,12 +281,13 @@ public:
 			throw NoPathFoundException(from, ex.what());
 		}
 
-		deleteElement(from);
 		create(to, toAdd);
+		deleteElement(from);
 	}
 
 
-	bool save(const MyString& filePath, const JsonPath& path = JsonPath()) // No throws
+	// No throws
+	void save(const MyString& filePath, const JsonPath& path = JsonPath()) const
 	{
 		std::ofstream file(filePath.c_str());
 
