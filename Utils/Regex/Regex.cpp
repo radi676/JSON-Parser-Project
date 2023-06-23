@@ -1,6 +1,6 @@
 #include "Regex.h"
 
-int Regex::matchSequence(const MyString& where, const MyString& what, size_t startIndex) const
+int Regex::matchSequence(const MyString &where, const MyString &what, size_t startIndex) const
 {
 	if (what.getLength() + startIndex > where.getLength())
 	{
@@ -27,13 +27,11 @@ int Regex::matchSequence(const MyString& where, const MyString& what, size_t sta
 	return -1;
 }
 
-
-
-Regex::Regex(const MyString& key) :key(key)
+Regex::Regex(const MyString &key) : key(key)
 {
 }
 
-bool Regex::match(const MyString& str) const
+bool Regex::match(const MyString &str) const
 {
 	size_t startIndex = 0;
 	size_t matchedIndex = 0;
@@ -73,7 +71,7 @@ bool Regex::match(const MyString& str) const
 		{
 			if (key[startIndex] == '\0')
 			{
-				return matchedIndex <= str.getLength();
+				return matchedIndex > str.getLength() - 1;
 			}
 			matchedIndex++;
 		}
