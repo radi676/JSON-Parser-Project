@@ -6,19 +6,30 @@
 
 class PrintCommand : public Command
 {
-	JsonDocument* document;
+	JsonDocument *document;
+
 public:
 	const static MyString NAME;
 
-	PrintCommand( JsonDocument* document) : document(document)
+	PrintCommand(JsonDocument *document) : document(document)
 	{
-
 	}
 
-	void execute(std::ostream& os) const override
+	void execute(std::ostream &os) const override
 	{
-		document->print(os);
-		os << std::endl;
+		try
+		{
+			document->print(os);
+			os << std::endl;
+		}
+		catch (const std::exception &ex)
+		{
+			os << "ERROR: " << ex.what() << std::endl;
+		}
+		catch (...)
+		{
+			os << "Unexpected error occured!" << std::endl;
+		}
 	}
 };
 
