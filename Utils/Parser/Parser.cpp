@@ -1,4 +1,3 @@
-#pragma once
 #include "./Parser.h"
 #include "../Validators/Validators.h"
 #include <sstream>
@@ -92,7 +91,6 @@ bool Parser::parseDecimal(MyString elementString)
 			else
 			{
 				throw std::invalid_argument("Invalid decimal number fomat!");
-
 			}
 		}
 
@@ -152,7 +150,7 @@ double Parser::isDecimal(MyString elementString)
 	return true;
 }
 
-size_t Parser::parseUInt(const MyString& str)
+size_t Parser::parseUInt(const MyString &str)
 {
 	int res = parseInt(str);
 	if (res < 0)

@@ -7,10 +7,14 @@
 #include "../Elements/Base/Primitive/Number/IntegerJsonElement.h"
 #include "../Elements/Base/Primitive/String/StringJsonElement.h"
 
+#include "../Elements/Base/Compound/Array/JsonArray.h"
+#include "../Elements/Base/Compound/Object/JsonObject.h"
+
 #include "../Utils/File/FileUtils.h"
 #include "../Utils/Pair/Pair.hpp"
 #include "../Utils/String/MyString.h"
 #include "../Utils/Helpers.h"
+#include "../Utils/Parser/Parser.h"
 
 #include "../Exceptions/InvalidJsonException.h"
 #include "../Exceptions/FileParseException.h"
@@ -326,25 +330,13 @@ size_t JsonElementParser::skipObjectTillComma(const MyString &str, int startInde
 	if (!(quotes == 0 && parenthasis == 0 && currlyBraces == 0))
 	{
 		MyString msg = "Error parsing json, got an extra ";
-		if (quotes < 0)
-		{
-			msg += " closing quote(\") without opening; ";
-		}
 		if (quotes > 0)
 		{
 			msg += " opening quote(\") without closing; ";
 		}
-		if (currlyBraces < 0)
-		{
-			msg += " closing curly brace(}) without opening; ";
-		}
 		if (currlyBraces > 0)
 		{
 			msg += " opening curly brace({) without closing; ";
-		}
-		if (parenthasis < 0)
-		{
-			msg += " closing parenthesis(]) without opening; ";
 		}
 		if (parenthasis > 0)
 		{
