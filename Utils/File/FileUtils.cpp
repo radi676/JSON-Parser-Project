@@ -1,7 +1,6 @@
 #include "./FileUtils.h"
 
-
-size_t FileUtils::getFileSize(std::ifstream& ifs)
+size_t FileUtils::getFileSize(std::ifstream &ifs)
 {
 	size_t pos = ifs.tellg();
 
@@ -12,11 +11,10 @@ size_t FileUtils::getFileSize(std::ifstream& ifs)
 	return res;
 }
 
-
-MyString FileUtils::readFile(std::ifstream& ifs)
+MyString FileUtils::readFile(std::ifstream &ifs)
 {
 	size_t capacity = getFileSize(ifs);
-	char* res = new char[capacity];
+	char *res = new char[capacity + 1];
 	size_t i = 0;
 	while (true)
 	{
