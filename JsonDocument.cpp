@@ -152,6 +152,11 @@ void JsonDocument ::create(const JsonPath &path, const JsonElement &value)
         }
     }
 
+    if (path.length() == 0)
+    {
+        throw PathAlreadyExistsException(path, "Cannot add element at root when document is non empty.");
+    }
+    
     JsonDocument substitute(this->value()->clone());
     JsonElement *current = &substitute;
     size_t levels = path.length();
