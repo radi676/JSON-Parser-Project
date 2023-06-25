@@ -21,7 +21,7 @@ public:
 	JsonElement(JsonElementBase* ptr) : _value(ptr) {}
 	JsonElement(const SharedPtr<JsonElementBase>& ptr) : _value(ptr) {}
 
-	virtual void print(std::ostream& o, size_t inset = 0, bool shouldInset = true) const
+	void print(std::ostream& o, size_t inset = 0, bool shouldInset = true) const
 	{
 		Output::printInset(o, shouldInset ? inset : 0);
 		_value->print(o, inset);
